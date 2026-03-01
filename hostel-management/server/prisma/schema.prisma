@@ -1,0 +1,257 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum Role {
+  STUDENT
+  ADMIN
+  WARDEN
+}
+
+enum ComplaintStatus {
+  PENDING
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum ComplaintPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum PassStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum LaundryType {
+  REGULAR
+  EXPRESS
+}
+
+enum LaundryStatus {
+  PENDING
+  PICKED_UP
+  PROCESSING
+  DELIVERED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+enum RoomStatus {
+  AVAILABLE
+  OCCUPIED
+  FULL
+  MAINTENANCE
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(STUDENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student   Student?
+  admin     Admin?
+}
+
+model Student {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  fullName      String
+  phone         String
+  course        String
+  branch        String
+  rollNumber    String   @unique
+  guardianName  String?
+  guardianPhone String?
+  address       String?
+  profilePhoto  String?
+
+  roomAllocation RoomAllocation?
+  complaints     Complaint[]
+  payments       Payment[]
+  laundryRequests LaundryRequest[]
+  outPasses      OutPass[]
+  homePasses     HomePass[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Admin {
+  id       String @id @default(uuid())
+  userId   String @unique
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName String
+  phone    String?
+}
+
+model Room {
+  id          String     @id @default(uuid())
+  roomNumber  String     @unique
+  block       String
+  floor       Int
+  capacity    Int
+  occupiedCount Int      @default(0)
+  status      RoomStatus @default(AVAILABLE)
+  amenities   String[]
+
+  allocations RoomAllocation[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RoomAllocation {
+  id          String   @id @default(uuid())
+  studentId   String   @unique
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  roomId      String
+  room        Room     @relation(fields: [roomId], references: [id])
+  allocatedAt DateTime @default(now())
+  vacatedAt   DateTime?
+  isActive    Boolean  @default(true)
+}
+
+model Complaint {
+  id          String            @id @default(uuid())
+  studentId   String
+  student     Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  category    String
+  description String
+  status      ComplaintStatus   @default(PENDING)
+  priority    ComplaintPriority @default(LOW)
+  remarks     String?
+  resolvedAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Fee {
+  id          String        @id @default(uuid())
+  title       String
+  amount      Float
+  dueDate     DateTime
+  academicYear String
+
+  payments    Payment[]
+
+  createdAt DateTime @default(now())
+}
+
+model Payment {
+  id              String        @id @default(uuid())
+  studentId       String
+  student         Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  feeId           String
+  fee             Fee           @relation(fields: [feeId], references: [id])
+  amount          Float
+  status          PaymentStatus @default(PENDING)
+  razorpayOrderId String?
+  razorpayPaymentId String?
+  receipt         String?
+  paidAt          DateTime?
+
+  createdAt DateTime @default(now())
+}
+
+model FoodMenu {
+  id        String   @id @default(uuid())
+  date      DateTime @db.Date
+  dayOfWeek String
+  breakfast String[]
+  lunch     String[]
+  snacks    String[]
+  dinner    String[]
+  isVeg     Boolean  @default(true)
+
+  feedbacks FoodFeedback[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([date])
+}
+
+model FoodFeedback {
+  id         String   @id @default(uuid())
+  menuId     String
+  menu       FoodMenu @relation(fields: [menuId], references: [id])
+  studentId  String
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now())
+}
+
+model LaundryRequest {
+  id           String        @id @default(uuid())
+  studentId    String
+  student      Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  clothesCount Int
+  laundryType  LaundryType
+  pickupDate   DateTime
+  returnDate   DateTime
+  status       LaundryStatus @default(PENDING)
+  amount       Float?
+  isPaid       Boolean       @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OutPass {
+  id             String     @id @default(uuid())
+  studentId      String
+  student        Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  date           DateTime
+  timeOut        DateTime
+  expectedReturn DateTime
+  reason         String
+  status         PassStatus @default(PENDING)
+  remarks        String?
+  approvedBy     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model HomePass {
+  id               String     @id @default(uuid())
+  studentId        String
+  student          Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  fromDate         DateTime
+  toDate           DateTime
+  destination      String
+  guardianContact  String
+  reason           String
+  status           PassStatus @default(PENDING)
+  remarks          String?
+  approvedBy       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
