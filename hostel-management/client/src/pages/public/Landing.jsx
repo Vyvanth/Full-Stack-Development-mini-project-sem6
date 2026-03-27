@@ -15,7 +15,7 @@ export default function Landing() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-primary-900 to-slate-900 text-white">
       {/* Nav */}
       <nav className="flex items-center justify-between px-8 py-5 max-w-6xl mx-auto">
-        <div className="text-xl font-bold tracking-tight">🏨 HostelMS</div>
+        
         <div className="flex gap-4">
           <Link to="/login" className="px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors">
             Login
@@ -28,9 +28,7 @@ export default function Landing() {
 
       {/* Hero */}
       <section className="max-w-4xl mx-auto px-8 py-24 text-center">
-        <span className="inline-block bg-primary-500/20 text-primary-300 text-xs font-semibold px-3 py-1 rounded-full mb-6 tracking-wider uppercase">
-          Full Stack · Team 11
-        </span>
+
         <h1 className="text-5xl font-bold tracking-tight mb-6 leading-tight">
           Hostel Management<br />
           <span className="text-primary-400">Made Simple</span>
