@@ -45,15 +45,31 @@ export default function Register() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     fullName: '', email: '', phone: '', course: '',
-    branch: '', rollNumber: '', password: '', confirmPassword: ''
+    branch: '', rollNumber: '', password: '', confirmPassword: '',
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    setError('');
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (form.password !== form.confirmPassword) return toast.error('Passwords do not match');
+    setError('');
+
+    if (form.password !== form.confirmPassword) {
+      const msg = 'Passwords do not match.';
+      setError(msg);
+      return toast.error(msg);
+    }
+    if (form.password.length < 6) {
+      const msg = 'Password must be at least 6 characters.';
+      setError(msg);
+      return toast.error(msg);
+    }
+
     setLoading(true);
     try {
       const { confirmPassword, ...data } = form;
@@ -61,7 +77,13 @@ export default function Register() {
       toast.success('Registration successful!');
       navigate('/student');
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Registration failed');
+      const message =
+        err?.response?.data?.error ||
+        err?.response?.data?.message ||
+        err?.message ||
+        'Registration failed. Please try again.';
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -70,6 +92,17 @@ export default function Register() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-8">
       <div className="w-full max-w-lg">
+
+        {/* Back to home */}
+        <div className="mb-6">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-700 transition-colors"
+          >
+            ← Back to Home
+          </Link>
+        </div>
+
         <div className="text-center mb-8">
           <Link to="/" className="text-2xl font-bold text-primary-700">🏨 HostelMS</Link>
           <h2 className="mt-4 text-xl font-semibold text-slate-800">Create your account</h2>
@@ -80,54 +113,52 @@ export default function Register() {
         </div>
 
         <div className="card p-8">
+
+          {/* Inline error banner */}
+          {error && (
+            <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-5 text-sm">
+              <span className="mt-0.5 flex-shrink-0">⚠️</span>
+              <span>{error}</span>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
 
-              {/* Full Name */}
               <div className="col-span-2">
                 <label className="label">Full Name</label>
                 <input name="fullName" required className="input" placeholder="Your full name"
                   value={form.fullName} onChange={handleChange} />
               </div>
 
-              {/* Email */}
               <div className="col-span-2">
                 <label className="label">Email</label>
                 <input name="email" type="email" required className="input" placeholder="you@example.com"
                   value={form.email} onChange={handleChange} />
               </div>
 
-              {/* Phone */}
               <div>
                 <label className="label">Phone</label>
                 <input name="phone" required className="input" placeholder="10-digit number"
                   value={form.phone} onChange={handleChange} />
               </div>
 
-              {/* Roll Number — no placeholder */}
               <div>
                 <label className="label">Roll Number</label>
                 <input name="rollNumber" required className="input"
                   value={form.rollNumber} onChange={handleChange} />
               </div>
 
-              {/* Course — no placeholder */}
               <div>
                 <label className="label">Course</label>
                 <input name="course" required className="input"
                   value={form.course} onChange={handleChange} />
               </div>
 
-              {/* Branch — Amrita dropdown */}
               <div>
                 <label className="label">Branch</label>
-                <select
-                  name="branch"
-                  required
-                  className="input"
-                  value={form.branch}
-                  onChange={handleChange}
-                >
+                <select name="branch" required className="input"
+                  value={form.branch} onChange={handleChange}>
                   <option value="" disabled>Select your branch</option>
                   {amritaBranches.map((b) => (
                     <option key={b} value={b}>{b}</option>
@@ -135,14 +166,12 @@ export default function Register() {
                 </select>
               </div>
 
-              {/* Password */}
               <div>
                 <label className="label">Password</label>
                 <input name="password" type="password" required className="input" placeholder="Min. 6 characters"
                   value={form.password} onChange={handleChange} />
               </div>
 
-              {/* Confirm Password */}
               <div>
                 <label className="label">Confirm Password</label>
                 <input name="confirmPassword" type="password" required className="input" placeholder="Repeat password"
@@ -156,6 +185,7 @@ export default function Register() {
             </button>
           </form>
         </div>
+
       </div>
     </div>
   );
