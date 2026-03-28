@@ -13,9 +13,13 @@ const features = [
 export default function Landing() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-primary-900 to-slate-900 text-white">
+
       {/* Nav */}
       <nav className="flex items-center justify-between px-8 py-5 max-w-6xl mx-auto">
-        
+        <div className="flex items-center gap-2">
+          <span className="text-xl">🏨</span>
+          <span className="text-lg font-bold tracking-tight text-white">HostelMS</span>
+        </div>
         <div className="flex gap-4">
           <Link to="/login" className="px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors">
             Login
@@ -28,6 +32,10 @@ export default function Landing() {
 
       {/* Hero */}
       <section className="max-w-4xl mx-auto px-8 py-24 text-center">
+        <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-1.5 mb-8">
+          <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+          <span className="text-xs font-medium text-white/70 tracking-wide">Smart Hostel Management</span>
+        </div>
 
         <h1 className="text-5xl font-bold tracking-tight mb-6 leading-tight">
           Hostel Management<br />
@@ -60,9 +68,32 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 px-8 py-6 text-center text-white/30 text-sm max-w-6xl mx-auto">
-        Hostel Management System · Team 11 · Full Stack Development (22AIE457)
+      <footer className="border-t border-white/10 px-8 py-8 max-w-6xl mx-auto">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+
+          {/* Brand */}
+          <div className="flex items-center gap-2">
+            <span className="text-base">🏨</span>
+            <span className="text-sm font-bold text-white/80 tracking-tight">HostelMS</span>
+          </div>
+
+          {/* Copyright */}
+          <p className="text-xs text-white/30">
+            © {new Date().getFullYear()} HostelMS. All rights reserved.
+          </p>
+
+          {/* Links */}
+          <div className="flex items-center gap-6">
+            {['Privacy Policy', 'Terms of Service', 'Support'].map((l) => (
+              <a key={l} href="#" className="text-xs text-white/30 hover:text-white/60 transition-colors">
+                {l}
+              </a>
+            ))}
+          </div>
+
+        </div>
       </footer>
+
     </div>
   );
 }
