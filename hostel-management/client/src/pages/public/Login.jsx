@@ -39,13 +39,6 @@ export default function Login() {
         </div>
 
         <div className="card p-8">
-          {/* Demo credentials */}
-          <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-6 text-xs text-blue-700">
-            <p className="font-semibold mb-1">Demo credentials:</p>
-            <p>Admin: admin@hostel.com / admin123</p>
-            <p>Student: student@hostel.com / student123</p>
-          </div>
-
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="label">Email</label>

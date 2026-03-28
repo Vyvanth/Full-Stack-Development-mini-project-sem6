@@ -10,6 +10,12 @@ const features = [
   { icon: '✅', title: 'Pass Management', desc: 'Out pass and home pass with digital approvals.' },
 ];
 
+const footerLinks = [
+  { label: 'Privacy Policy', to: '/privacy-policy' },
+  { label: 'Terms of Service', to: '/terms-of-service' },
+  { label: 'Support', to: '/support' },
+];
+
 export default function Landing() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-primary-900 to-slate-900 text-white">
@@ -36,7 +42,6 @@ export default function Landing() {
           <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
           <span className="text-xs font-medium text-white/70 tracking-wide">Smart Hostel Management</span>
         </div>
-
         <h1 className="text-5xl font-bold tracking-tight mb-6 leading-tight">
           Hostel Management<br />
           <span className="text-primary-400">Made Simple</span>
@@ -70,27 +75,20 @@ export default function Landing() {
       {/* Footer */}
       <footer className="border-t border-white/10 px-8 py-8 max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-
-          {/* Brand */}
           <div className="flex items-center gap-2">
             <span className="text-base">🏨</span>
             <span className="text-sm font-bold text-white/80 tracking-tight">HostelMS</span>
           </div>
-
-          {/* Copyright */}
           <p className="text-xs text-white/30">
             © {new Date().getFullYear()} HostelMS. All rights reserved.
           </p>
-
-          {/* Links */}
           <div className="flex items-center gap-6">
-            {['Privacy Policy', 'Terms of Service', 'Support'].map((l) => (
-              <a key={l} href="#" className="text-xs text-white/30 hover:text-white/60 transition-colors">
-                {l}
-              </a>
+            {footerLinks.map(({ label, to }) => (
+              <Link key={label} to={to} className="text-xs text-white/30 hover:text-white/60 transition-colors">
+                {label}
+              </Link>
             ))}
           </div>
-
         </div>
       </footer>
 
