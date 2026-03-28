@@ -3,6 +3,10 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
+import PrivacyPolicy from './pages/public/PrivacyPolicy';
+import TermsOfService from './pages/public/TermsOfService';
+import Support from './pages/public/Support';
+
 // Layouts
 import StudentLayout from './layouts/StudentLayout';
 import AdminLayout from './layouts/AdminLayout';
@@ -56,6 +60,10 @@ function AppRoutes() {
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
       <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
+
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+      <Route path="/terms-of-service" element={<TermsOfService />} />
+      <Route path="/support" element={<Support />} />
 
       {/* Student */}
       <Route path="/student" element={<PrivateRoute roles={['STUDENT']}><StudentLayout /></PrivateRoute>}>
