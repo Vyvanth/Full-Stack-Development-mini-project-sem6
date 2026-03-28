@@ -23,7 +23,7 @@ export default function PaymentManagement() {
         <div className="card p-5 lg:col-span-1">
           <h2 className="font-semibold text-slate-700 mb-3">Create Fee</h2>
           <form onSubmit={createFee} className="space-y-3">
-            <div><label className="label">Title</label><input required className="input" placeholder="Hostel Fee Q1" value={feeForm.title} onChange={e => setFeeForm({ ...feeForm, title: e.target.value })} /></div>
+            <div><label className="label">Title</label><input required className="input" value={feeForm.title} onChange={e => setFeeForm({ ...feeForm, title: e.target.value })} /></div>
             <div><label className="label">Amount (₹)</label><input type="number" required className="input" value={feeForm.amount} onChange={e => setFeeForm({ ...feeForm, amount: e.target.value })} /></div>
             <div><label className="label">Due Date</label><input type="date" required className="input" value={feeForm.dueDate} onChange={e => setFeeForm({ ...feeForm, dueDate: e.target.value })} /></div>
             <div><label className="label">Academic Year</label><input required className="input" value={feeForm.academicYear} onChange={e => setFeeForm({ ...feeForm, academicYear: e.target.value })} /></div>
