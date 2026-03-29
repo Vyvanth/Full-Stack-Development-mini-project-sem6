@@ -37,16 +37,17 @@ export default function ManageStudents() {
         {loading ? <div className="p-8 text-center text-slate-400">Loading...</div> : (
           <table className="w-full text-sm">
             <thead className="bg-slate-50 border-b border-slate-100">
-              <tr>{['Name', 'Roll Number', 'Course/Branch', 'Room', 'Phone', 'Actions'].map(h => (
+              <tr>{['Name', 'Gender', 'Roll Number', 'Course/Branch', 'Room', 'Phone', 'Actions'].map(h => (
                 <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">{h}</th>
               ))}</tr>
             </thead>
             <tbody>
               {students.length === 0 ? (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-400">No students found</td></tr>
+                <tr><td colSpan={7} className="px-4 py-8 text-center text-slate-400">No students found</td></tr>
               ) : students.map(s => (
                 <tr key={s.id} className="border-t border-slate-50 hover:bg-slate-50">
                   <td className="px-4 py-3 font-medium">{s.fullName}</td>
+                  <td className="px-4 py-3 text-slate-500">{s.gender === 'FEMALE' ? 'Female' : 'Male'}</td>
                   <td className="px-4 py-3 text-slate-500 font-mono text-xs">{s.rollNumber}</td>
                   <td className="px-4 py-3 text-slate-500">{s.course} · {s.branch}</td>
                   <td className="px-4 py-3">{s.roomAllocation?.room?.roomNumber || <span className="text-slate-300">—</span>}</td>

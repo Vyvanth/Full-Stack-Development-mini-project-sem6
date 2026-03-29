@@ -27,7 +27,7 @@ async function main() {
   console.log('✅ Admin user created:', adminUser.email);
 
   // Create sample rooms
-  const blocks = ['A', 'B', 'C'];
+  const blocks = ['A', 'B'];
   for (const block of blocks) {
     for (let floor = 1; floor <= 3; floor++) {
       for (let room = 1; room <= 5; room++) {
@@ -60,6 +60,7 @@ async function main() {
       student: {
         create: {
           fullName: 'Demo Student',
+          gender: 'MALE',
           phone: '8888888888',
           course: 'B.Tech',
           branch: 'AI & Data Science',

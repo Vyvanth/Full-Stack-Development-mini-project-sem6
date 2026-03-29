@@ -17,6 +17,11 @@ enum Role {
   WARDEN
 }
 
+enum Gender {
+  MALE
+  FEMALE
+}
+
 enum ComplaintStatus {
   PENDING
   IN_PROGRESS
@@ -81,6 +86,7 @@ model Student {
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   fullName      String
+  gender        Gender   @default(MALE)
   phone         String
   course        String
   branch        String

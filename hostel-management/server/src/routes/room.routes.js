@@ -11,7 +11,7 @@ router.get('/', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) => {
   try {
     const { block, status } = req.query;
     const where = {};
-    if (block) where.block = block;
+    where.block = block || { in: ['A', 'B'] };
     if (status) where.status = status;
 
     const rooms = await prisma.room.findMany({
@@ -33,11 +33,16 @@ router.get('/', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) => {
 // GET /api/rooms/available - available rooms (for allocation)
 router.get('/available', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) => {
   try {
+    const { gender } = req.query;
+    const allowedBlock = gender === 'FEMALE' ? 'B' : gender === 'MALE' ? 'A' : undefined;
     const rooms = await prisma.room.findMany({
-      where: { status: { in: ['AVAILABLE', 'OCCUPIED'] }, occupiedCount: { lt: prisma.room.fields.capacity } },
+      where: {
+        status: { in: ['AVAILABLE', 'OCCUPIED'] },
+        ...(allowedBlock && { block: allowedBlock }),
+      },
       orderBy: { roomNumber: 'asc' },
     });
-    res.json({ rooms });
+    res.json({ rooms: rooms.filter((room) => room.occupiedCount < room.capacity) });
   } catch (err) {
     next(err);
   }
@@ -47,6 +52,9 @@ router.get('/available', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, nex
 router.post('/', authorizeRoles('ADMIN'), async (req, res, next) => {
   try {
     const { roomNumber, block, floor, capacity, amenities } = req.body;
+    if (!['A', 'B'].includes(block)) {
+      return res.status(400).json({ error: 'Rooms can only be created in block A or block B.' });
+    }
     const room = await prisma.room.create({
       data: { roomNumber, block, floor: Number(floor), capacity: Number(capacity), amenities: amenities || [] },
     });
@@ -68,6 +76,13 @@ router.post('/allocate', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, nex
     const room = await prisma.room.findUnique({ where: { id: roomId } });
     if (!room) return res.status(404).json({ error: 'Room not found' });
     if (room.occupiedCount >= room.capacity) return res.status(400).json({ error: 'Room is full' });
+
+    const allowedBlock = student.gender === 'FEMALE' ? 'B' : 'A';
+    if (room.block !== allowedBlock) {
+      return res.status(400).json({
+        error: `This student can only be allocated to Block ${allowedBlock}.`,
+      });
+    }
 
     const [allocation] = await prisma.$transaction([
       prisma.roomAllocation.create({ data: { studentId, roomId } }),

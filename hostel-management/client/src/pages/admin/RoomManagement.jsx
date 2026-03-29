@@ -8,7 +8,7 @@ const STATUS_COLORS = { AVAILABLE: 'green', OCCUPIED: 'blue', FULL: 'red', MAINT
 export default function RoomManagement() {
   const [rooms, setRooms] = useState([]);
   const [students, setStudents] = useState([]);
-  const [form, setForm] = useState({ roomNumber: '', block: '', floor: '', capacity: '3' });
+  const [form, setForm] = useState({ roomNumber: '', block: 'A', floor: '', capacity: '3' });
   const [alloc, setAlloc] = useState({ studentId: '', roomId: '' });
 
   const fetchRooms = () => api.get('/rooms').then(({ data }) => setRooms(data.rooms));
@@ -18,7 +18,7 @@ export default function RoomManagement() {
 
   const handleCreateRoom = async (e) => {
     e.preventDefault();
-    try { await api.post('/rooms', form); toast.success('Room created!'); setForm({ roomNumber: '', block: '', floor: '', capacity: '3' }); fetchRooms(); }
+    try { await api.post('/rooms', form); toast.success('Room created!'); setForm({ roomNumber: '', block: 'A', floor: '', capacity: '3' }); fetchRooms(); }
     catch (err) { toast.error(err.response?.data?.error || 'Failed'); }
   };
 
@@ -29,6 +29,13 @@ export default function RoomManagement() {
   };
 
   const unallocatedStudents = students.filter(s => !s.roomAllocation?.isActive);
+  const selectedStudent = unallocatedStudents.find((student) => student.id === alloc.studentId);
+  const allowedBlock = selectedStudent?.gender === 'FEMALE' ? 'B' : selectedStudent?.gender === 'MALE' ? 'A' : null;
+  const visibleRooms = rooms.filter((room) => {
+    if (room.status === 'FULL' || room.status === 'MAINTENANCE') return false;
+    if (!allowedBlock) return true;
+    return room.block === allowedBlock;
+  });
 
   return (
     <div>
@@ -38,7 +45,17 @@ export default function RoomManagement() {
           <h2 className="font-semibold text-slate-700 mb-3">Add Room</h2>
           <form onSubmit={handleCreateRoom} className="space-y-3">
             {[['Room Number', 'roomNumber', 'A101'], ['Block', 'block', 'A'], ['Floor', 'floor', '1'], ['Capacity', 'capacity', '3']].map(([l, k, p]) => (
-              <div key={k}><label className="label">{l}</label><input required className="input" placeholder={p} value={form[k]} onChange={e => setForm({ ...form, [k]: e.target.value })} /></div>
+              k === 'block' ? (
+                <div key={k}>
+                  <label className="label">{l}</label>
+                  <select required className="input" value={form.block} onChange={e => setForm({ ...form, block: e.target.value })}>
+                    <option value="A">Block A</option>
+                    <option value="B">Block B</option>
+                  </select>
+                </div>
+              ) : (
+                <div key={k}><label className="label">{l}</label><input required className="input" placeholder={p} value={form[k]} onChange={e => setForm({ ...form, [k]: e.target.value })} /></div>
+              )
             ))}
             <button type="submit" className="btn-primary w-full">Create Room</button>
           </form>
@@ -48,16 +65,16 @@ export default function RoomManagement() {
           <form onSubmit={handleAllocate} className="space-y-3">
             <div>
               <label className="label">Student (Unallocated)</label>
-              <select required className="input" value={alloc.studentId} onChange={e => setAlloc({ ...alloc, studentId: e.target.value })}>
+              <select required className="input" value={alloc.studentId} onChange={e => setAlloc({ ...alloc, studentId: e.target.value, roomId: '' })}>
                 <option value="">Select student</option>
-                {unallocatedStudents.map(s => <option key={s.id} value={s.id}>{s.fullName} ({s.rollNumber})</option>)}
+                {unallocatedStudents.map(s => <option key={s.id} value={s.id}>{s.fullName} ({s.rollNumber}) - {s.gender === 'FEMALE' ? 'Female' : 'Male'}</option>)}
               </select>
             </div>
             <div>
-              <label className="label">Room</label>
+              <label className="label">Room {allowedBlock ? `(Block ${allowedBlock})` : ''}</label>
               <select required className="input" value={alloc.roomId} onChange={e => setAlloc({ ...alloc, roomId: e.target.value })}>
                 <option value="">Select room</option>
-                {rooms.filter(r => r.status !== 'FULL' && r.status !== 'MAINTENANCE').map(r => (
+                {visibleRooms.map(r => (
                   <option key={r.id} value={r.id}>{r.roomNumber} (Block {r.block}, {r.occupiedCount}/{r.capacity})</option>
                 ))}
               </select>

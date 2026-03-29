@@ -15,9 +15,9 @@ const generateToken = (userId) =>
 // ─── POST /api/auth/register ──────────────────────────────────────────────────
 router.post('/register', async (req, res, next) => {
   try {
-    const { fullName, email, phone, course, branch, password, rollNumber } = req.body;
+    const { fullName, email, phone, course, branch, password, rollNumber, gender } = req.body;
 
-    if (!fullName || !email || !phone || !course || !branch || !password || !rollNumber) {
+    if (!fullName || !email || !phone || !course || !branch || !password || !rollNumber || !gender) {
       return res.status(400).json({ error: 'All fields are required.' });
     }
 
@@ -47,6 +47,10 @@ router.post('/register', async (req, res, next) => {
       return res.status(400).json({ error: 'Please enter a valid roll number.' });
     }
 
+    if (!['MALE', 'FEMALE'].includes(gender)) {
+      return res.status(400).json({ error: 'Gender must be either MALE or FEMALE.' });
+    }
+
     // Duplicate email
     const existingEmail = await prisma.user.findUnique({ where: { email } });
     if (existingEmail) {
@@ -68,7 +72,7 @@ router.post('/register', async (req, res, next) => {
         password: hashedPassword,
         role: 'STUDENT',
         student: {
-          create: { fullName, phone, course, branch, rollNumber },
+          create: { fullName, gender, phone, course, branch, rollNumber },
         },
       },
       include: { student: true },

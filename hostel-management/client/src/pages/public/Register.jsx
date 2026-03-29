@@ -73,6 +73,10 @@ const validate = (form) => {
     errors.branch = 'Please select your branch.';
   }
 
+  if (!form.gender) {
+    errors.gender = 'Please select your gender.';
+  }
+
   if (form.password.length < 6) {
     errors.password = 'Password must be at least 6 characters.';
   } else if (!/[A-Za-z]/.test(form.password) || !/[0-9]/.test(form.password)) {
@@ -91,7 +95,7 @@ export default function Register() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     fullName: '', email: '', phone: '', course: '',
-    branch: '', rollNumber: '', password: '', confirmPassword: '',
+    branch: '', gender: '', rollNumber: '', password: '', confirmPassword: '',
   });
   const [errors, setErrors] = useState({});
   const [globalError, setGlobalError] = useState('');
@@ -224,8 +228,19 @@ export default function Register() {
                 {errors.course && <p className="text-xs text-red-500 mt-1">{errors.course}</p>}
               </div>
 
-              {/* Branch dropdown */}
               <div>
+                <label className="label">Gender</label>
+                <select name="gender" required className={inputClass('gender')}
+                  value={form.gender} onChange={handleChange}>
+                  <option value="" disabled>Select gender</option>
+                  <option value="MALE">Male</option>
+                  <option value="FEMALE">Female</option>
+                </select>
+                {errors.gender && <p className="text-xs text-red-500 mt-1">{errors.gender}</p>}
+              </div>
+
+              {/* Branch dropdown */}
+              <div className="col-span-2">
                 <label className="label">Branch</label>
                 <select name="branch" required className={inputClass('branch')}
                   value={form.branch} onChange={handleChange}>
