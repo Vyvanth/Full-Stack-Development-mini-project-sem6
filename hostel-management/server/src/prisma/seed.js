@@ -1,13 +1,11 @@
-// src/prisma/seed.js
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Seeding database...');
+  console.log('Seeding database...');
 
-  // Create admin user
   const hashedPassword = await bcrypt.hash('admin123', 10);
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@hostel.com' },
@@ -24,9 +22,8 @@ async function main() {
       },
     },
   });
-  console.log('✅ Admin user created:', adminUser.email);
+  console.log('Admin user created:', adminUser.email);
 
-  // Create sample rooms
   const blocks = ['A', 'B'];
   for (const block of blocks) {
     for (let floor = 1; floor <= 3; floor++) {
@@ -46,9 +43,8 @@ async function main() {
       }
     }
   }
-  console.log('✅ Rooms seeded');
+  console.log('Rooms seeded');
 
-  // Create sample student
   const studentPassword = await bcrypt.hash('student123', 10);
   await prisma.user.upsert({
     where: { email: 'student@hostel.com' },
@@ -71,40 +67,16 @@ async function main() {
       },
     },
   });
-  console.log('✅ Demo student created: student@hostel.com');
+  console.log('Demo student created: student@hostel.com');
 
-  // Seed food menu for next 7 days
-  const today = new Date();
-  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  for (let i = 0; i < 7; i++) {
-    const date = new Date(today);
-    date.setDate(today.getDate() + i);
-    date.setHours(0, 0, 0, 0);
-
-    await prisma.foodMenu.upsert({
-      where: { date },
-      update: {},
-      create: {
-        date,
-        dayOfWeek: days[date.getDay()],
-        breakfast: ['Idli', 'Sambar', 'Chutney', 'Tea/Coffee'],
-        lunch: ['Rice', 'Dal', 'Sabzi', 'Curd', 'Papad'],
-        snacks: ['Bread Butter', 'Tea'],
-        dinner: ['Chapati', 'Paneer Curry', 'Rice', 'Dal'],
-        isVeg: true,
-      },
-    });
-  }
-  console.log('✅ Food menu seeded for 7 days');
-
-  console.log('\n🎉 Database seeded successfully!');
-  console.log('   Admin: admin@hostel.com / admin123');
-  console.log('   Student: student@hostel.com / student123');
+  console.log('\nDatabase seeded successfully!');
+  console.log('  Admin: admin@hostel.com / admin123');
+  console.log('  Student: student@hostel.com / student123');
 }
 
 main()
-  .catch((e) => {
-    console.error('❌ Seed failed:', e);
+  .catch((error) => {
+    console.error('Seed failed:', error);
     process.exit(1);
   })
   .finally(async () => {
