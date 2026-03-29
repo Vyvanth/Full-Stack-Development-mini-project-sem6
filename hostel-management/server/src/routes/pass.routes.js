@@ -91,6 +91,28 @@ router.patch('/out/:id', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, nex
   }
 });
 
+router.delete('/out/:id', async (req, res, next) => {
+  try {
+    if (req.user.role !== 'STUDENT') {
+      return res.status(403).json({ error: 'Only students can cancel out pass requests' });
+    }
+
+    const pass = await prisma.outPass.findUnique({ where: { id: req.params.id } });
+    if (!pass || pass.studentId !== req.user.student?.id) {
+      return res.status(404).json({ error: 'Out pass request not found' });
+    }
+
+    if (pass.status !== 'PENDING') {
+      return res.status(400).json({ error: 'Only pending out pass requests can be cancelled' });
+    }
+
+    await prisma.outPass.delete({ where: { id: req.params.id } });
+    res.json({ message: 'Out pass request cancelled successfully' });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ─── HOME PASSES ──────────────────────────────────────────────────────────────
 router.get('/home', async (req, res, next) => {
   try {
@@ -168,6 +190,28 @@ router.patch('/home/:id', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, ne
       data: { status, remarks, approvedBy: req.user.admin?.fullName || req.user.email },
     });
     res.json({ pass });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.delete('/home/:id', async (req, res, next) => {
+  try {
+    if (req.user.role !== 'STUDENT') {
+      return res.status(403).json({ error: 'Only students can cancel home pass requests' });
+    }
+
+    const pass = await prisma.homePass.findUnique({ where: { id: req.params.id } });
+    if (!pass || pass.studentId !== req.user.student?.id) {
+      return res.status(404).json({ error: 'Home pass request not found' });
+    }
+
+    if (pass.status !== 'PENDING') {
+      return res.status(400).json({ error: 'Only pending home pass requests can be cancelled' });
+    }
+
+    await prisma.homePass.delete({ where: { id: req.params.id } });
+    res.json({ message: 'Home pass request cancelled successfully' });
   } catch (err) {
     next(err);
   }

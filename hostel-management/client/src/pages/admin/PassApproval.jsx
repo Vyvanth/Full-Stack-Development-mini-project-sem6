@@ -7,7 +7,6 @@ export default function PassApproval() {
   const [outPasses, setOutPasses] = useState([]);
   const [homePasses, setHomePasses] = useState([]);
   const [tab, setTab] = useState('out');
-  const [remarks, setRemarks] = useState({});
 
   const fetchAll = () => {
     api.get('/passes/out').then(({ data }) => setOutPasses(data.passes));
@@ -17,7 +16,7 @@ export default function PassApproval() {
 
   const updatePass = async (type, id, status) => {
     try {
-      await api.patch(`/passes/${type}/${id}`, { status, remarks: remarks[id] || '' });
+      await api.patch(`/passes/${type}/${id}`, { status });
       toast.success(`Pass ${status.toLowerCase()}!`);
       fetchAll();
     } catch { toast.error('Action failed'); }
@@ -28,12 +27,12 @@ export default function PassApproval() {
       <table className="w-full text-sm">
         <thead className="bg-slate-50"><tr>
           {(type === 'out'
-            ? ['Student', 'Date', 'Time Out', 'Return', 'Reason', 'Status', 'Remarks', 'Actions']
-            : ['Student', 'From Date', 'From Time', 'To Date', 'To Time', 'Status', 'Remarks', 'Actions']
+            ? ['Student', 'Date', 'Time Out', 'Return', 'Reason', 'Status', 'Actions']
+            : ['Student', 'From Date', 'From Time', 'To Date', 'To Time', 'Status', 'Actions']
           ).map(h => <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">{h}</th>)}
         </tr></thead>
         <tbody>
-          {passes.length === 0 ? <tr><td colSpan={8} className="px-4 py-8 text-center text-slate-400">No {type} passes</td></tr>
+          {passes.length === 0 ? <tr><td colSpan={7} className="px-4 py-8 text-center text-slate-400">No {type} passes</td></tr>
             : passes.map(p => (
               <tr key={p.id} className="border-t border-slate-50">
                 <td className="px-4 py-3 font-medium">{p.student?.fullName}<br /><span className="text-xs text-slate-400">{p.student?.rollNumber}</span></td>
@@ -49,9 +48,6 @@ export default function PassApproval() {
                 </>}
                 {type === 'out' && <td className="px-4 py-3 text-slate-500 max-w-[140px] truncate">{p.reason}</td>}
                 <td className="px-4 py-3"><span className={`badge-${p.status.toLowerCase()}`}>{p.status}</span></td>
-                <td className="px-4 py-3">
-                  <input className="input text-xs w-28" placeholder="Remarks..." value={remarks[p.id] || ''} onChange={e => setRemarks({ ...remarks, [p.id]: e.target.value })} />
-                </td>
                 <td className="px-4 py-3">
                   {p.status === 'PENDING' && (
                     <div className="flex gap-1">
