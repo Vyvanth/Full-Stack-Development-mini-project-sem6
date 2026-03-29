@@ -40,6 +40,52 @@ const amritaBranches = [
   'Ph.D',
 ];
 
+// ── Validation rules ──────────────────────────────────────────────────────────
+const validate = (form) => {
+  const errors = {};
+
+  if (!form.fullName.trim() || form.fullName.trim().length < 3) {
+    errors.fullName = 'Full name must be at least 3 characters.';
+  } else if (!/^[a-zA-Z\s]+$/.test(form.fullName.trim())) {
+    errors.fullName = 'Full name must contain only letters.';
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(form.email)) {
+    errors.email = 'Enter a valid email address.';
+  }
+
+  // 10 digits, must start with 6, 7, 8 or 9
+  const phoneRegex = /^[6-9]\d{9}$/;
+  if (!phoneRegex.test(form.phone)) {
+    errors.phone = 'Enter a valid 10-digit Indian mobile number (starts with 6–9).';
+  }
+
+  if (!form.rollNumber.trim() || form.rollNumber.trim().length < 3) {
+    errors.rollNumber = 'Enter a valid roll number.';
+  }
+
+  if (!form.course.trim() || form.course.trim().length < 2) {
+    errors.course = 'Enter a valid course name.';
+  }
+
+  if (!form.branch) {
+    errors.branch = 'Please select your branch.';
+  }
+
+  if (form.password.length < 6) {
+    errors.password = 'Password must be at least 6 characters.';
+  } else if (!/[A-Za-z]/.test(form.password) || !/[0-9]/.test(form.password)) {
+    errors.password = 'Password must contain at least one letter and one number.';
+  }
+
+  if (form.confirmPassword !== form.password) {
+    errors.confirmPassword = 'Passwords do not match.';
+  }
+
+  return errors;
+};
+
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -47,27 +93,35 @@ export default function Register() {
     fullName: '', email: '', phone: '', course: '',
     branch: '', rollNumber: '', password: '', confirmPassword: '',
   });
+  const [errors, setErrors] = useState({});
+  const [globalError, setGlobalError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const handleChange = (e) => {
-    setError('');
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    // Phone: only allow digits, max 10
+    if (name === 'phone') {
+      if (!/^\d*$/.test(value) || value.length > 10) return;
+    }
+
+    setForm({ ...form, [name]: value });
+
+    // Clear field error on change
+    if (errors[name]) setErrors({ ...errors, [name]: '' });
+    setGlobalError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setGlobalError('');
 
-    if (form.password !== form.confirmPassword) {
-      const msg = 'Passwords do not match.';
-      setError(msg);
-      return toast.error(msg);
-    }
-    if (form.password.length < 6) {
-      const msg = 'Password must be at least 6 characters.';
-      setError(msg);
-      return toast.error(msg);
+    // Run all validations
+    const fieldErrors = validate(form);
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors(fieldErrors);
+      toast.error('Please fix the errors before submitting.');
+      return;
     }
 
     setLoading(true);
@@ -82,12 +136,16 @@ export default function Register() {
         err?.response?.data?.message ||
         err?.message ||
         'Registration failed. Please try again.';
-      setError(message);
+      setGlobalError(message);
       toast.error(message);
     } finally {
       setLoading(false);
     }
   };
+
+  // Helper: input class with error highlight
+  const inputClass = (field) =>
+    `input ${errors[field] ? 'border-red-400 focus:ring-red-300' : ''}`;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-8">
@@ -95,10 +153,7 @@ export default function Register() {
 
         {/* Back to home */}
         <div className="mb-6">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-700 transition-colors"
-          >
+          <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-700 transition-colors">
             ← Back to Home
           </Link>
         </div>
@@ -114,68 +169,90 @@ export default function Register() {
 
         <div className="card p-8">
 
-          {/* Inline error banner */}
-          {error && (
+          {/* Global error */}
+          {globalError && (
             <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-5 text-sm">
               <span className="mt-0.5 flex-shrink-0">⚠️</span>
-              <span>{error}</span>
+              <span>{globalError}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div className="grid grid-cols-2 gap-4">
 
+              {/* Full Name */}
               <div className="col-span-2">
                 <label className="label">Full Name</label>
-                <input name="fullName" required className="input" placeholder="Your full name"
-                  value={form.fullName} onChange={handleChange} />
+                <input name="fullName" required className={inputClass('fullName')}
+                  placeholder="Your full name" value={form.fullName} onChange={handleChange} />
+                {errors.fullName && <p className="text-xs text-red-500 mt-1">{errors.fullName}</p>}
               </div>
 
+              {/* Email */}
               <div className="col-span-2">
                 <label className="label">Email</label>
-                <input name="email" type="email" required className="input" placeholder="you@example.com"
-                  value={form.email} onChange={handleChange} />
+                <input name="email" type="email" required className={inputClass('email')}
+                  placeholder="you@example.com" value={form.email} onChange={handleChange} />
+                {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
               </div>
 
+              {/* Phone */}
               <div>
                 <label className="label">Phone</label>
-                <input name="phone" required className="input" placeholder="10-digit number"
-                  value={form.phone} onChange={handleChange} />
+                <input name="phone" required className={inputClass('phone')}
+                  placeholder="10-digit mobile number"
+                  value={form.phone} onChange={handleChange}
+                  maxLength={10} inputMode="numeric" />
+                {errors.phone
+                  ? <p className="text-xs text-red-500 mt-1">{errors.phone}</p>
+                  : <p className="text-xs text-slate-400 mt-1">Must start with 6, 7, 8 or 9</p>}
               </div>
 
+              {/* Roll Number */}
               <div>
                 <label className="label">Roll Number</label>
-                <input name="rollNumber" required className="input"
+                <input name="rollNumber" required className={inputClass('rollNumber')}
                   value={form.rollNumber} onChange={handleChange} />
+                {errors.rollNumber && <p className="text-xs text-red-500 mt-1">{errors.rollNumber}</p>}
               </div>
 
+              {/* Course */}
               <div>
                 <label className="label">Course</label>
-                <input name="course" required className="input"
+                <input name="course" required className={inputClass('course')}
                   value={form.course} onChange={handleChange} />
+                {errors.course && <p className="text-xs text-red-500 mt-1">{errors.course}</p>}
               </div>
 
+              {/* Branch dropdown */}
               <div>
                 <label className="label">Branch</label>
-                <select name="branch" required className="input"
+                <select name="branch" required className={inputClass('branch')}
                   value={form.branch} onChange={handleChange}>
                   <option value="" disabled>Select your branch</option>
                   {amritaBranches.map((b) => (
                     <option key={b} value={b}>{b}</option>
                   ))}
                 </select>
+                {errors.branch && <p className="text-xs text-red-500 mt-1">{errors.branch}</p>}
               </div>
 
+              {/* Password */}
               <div>
                 <label className="label">Password</label>
-                <input name="password" type="password" required className="input" placeholder="Min. 6 characters"
-                  value={form.password} onChange={handleChange} />
+                <input name="password" type="password" required className={inputClass('password')}
+                  placeholder="Min. 6 characters" value={form.password} onChange={handleChange} />
+                {errors.password
+                  ? <p className="text-xs text-red-500 mt-1">{errors.password}</p>
+                  : <p className="text-xs text-slate-400 mt-1">Letters + numbers required</p>}
               </div>
 
+              {/* Confirm Password */}
               <div>
                 <label className="label">Confirm Password</label>
-                <input name="confirmPassword" type="password" required className="input" placeholder="Repeat password"
-                  value={form.confirmPassword} onChange={handleChange} />
+                <input name="confirmPassword" type="password" required className={inputClass('confirmPassword')}
+                  placeholder="Repeat password" value={form.confirmPassword} onChange={handleChange} />
+                {errors.confirmPassword && <p className="text-xs text-red-500 mt-1">{errors.confirmPassword}</p>}
               </div>
 
             </div>
