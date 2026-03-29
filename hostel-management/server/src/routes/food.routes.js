@@ -6,6 +6,61 @@ const { authenticate, authorizeRoles } = require('../middleware/auth.middleware'
 const router = express.Router();
 router.use(authenticate);
 
+const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const MAX_MEAL_ITEMS = 10;
+const MAX_ITEM_LENGTH = 60;
+const MEAL_ITEM_PATTERN = /[A-Za-z0-9]/;
+
+function normalizeMenuDate(date) {
+  const menuDate = new Date(date);
+  if (Number.isNaN(menuDate.getTime())) return null;
+  menuDate.setHours(0, 0, 0, 0);
+  return menuDate;
+}
+
+function normalizeMealItems(items) {
+  if (!Array.isArray(items)) return null;
+  return items
+    .map((item) => String(item).trim())
+    .filter(Boolean);
+}
+
+function validateMenuPayload({ date, dayOfWeek, breakfast, lunch, snacks, dinner }) {
+  const menuDate = normalizeMenuDate(date);
+  if (!menuDate) return { error: 'Please provide a valid date' };
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (menuDate < today) return { error: 'Date cannot be in the past' };
+
+  const expectedDay = DAYS[menuDate.getDay()];
+  if (!dayOfWeek || dayOfWeek !== expectedDay) {
+    return { error: 'Day must match the selected date' };
+  }
+
+  const normalizedMeals = {
+    breakfast: normalizeMealItems(breakfast),
+    lunch: normalizeMealItems(lunch),
+    snacks: normalizeMealItems(snacks),
+    dinner: normalizeMealItems(dinner),
+  };
+
+  for (const [label, key] of [['Breakfast', 'breakfast'], ['Lunch', 'lunch'], ['Snacks', 'snacks'], ['Dinner', 'dinner']]) {
+    const items = normalizedMeals[key];
+    if (!items) return { error: `${label} must be sent as a list of items` };
+    if (items.length === 0) return { error: `${label} must have at least one item` };
+    if (items.length > MAX_MEAL_ITEMS) return { error: `${label} can have at most ${MAX_MEAL_ITEMS} items` };
+    if (items.some((item) => item.length > MAX_ITEM_LENGTH)) {
+      return { error: `${label} items must be ${MAX_ITEM_LENGTH} characters or less` };
+    }
+    if (items.some((item) => !MEAL_ITEM_PATTERN.test(item))) {
+      return { error: `${label} items must contain real food names, not only symbols` };
+    }
+  }
+
+  return { menuDate, normalizedMeals };
+}
+
 // GET /api/food - get menu for date range
 router.get('/', async (req, res, next) => {
   try {
@@ -67,13 +122,13 @@ router.get('/', async (req, res, next) => {
 router.post('/', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) => {
   try {
     const { date, dayOfWeek, breakfast, lunch, snacks, dinner, isVeg } = req.body;
-    const menuDate = new Date(date);
-    menuDate.setHours(0, 0, 0, 0);
+    const { error, menuDate, normalizedMeals } = validateMenuPayload({ date, dayOfWeek, breakfast, lunch, snacks, dinner });
+    if (error) return res.status(400).json({ error });
 
     const menu = await prisma.foodMenu.upsert({
       where: { date: menuDate },
-      update: { dayOfWeek, breakfast, lunch, snacks, dinner, isVeg },
-      create: { date: menuDate, dayOfWeek, breakfast, lunch, snacks, dinner, isVeg },
+      update: { dayOfWeek, ...normalizedMeals, isVeg: Boolean(isVeg) },
+      create: { date: menuDate, dayOfWeek, ...normalizedMeals, isVeg: Boolean(isVeg) },
     });
     res.status(201).json({ menu });
   } catch (err) {
@@ -85,12 +140,12 @@ router.post('/', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) => {
 router.put('/:id', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) => {
   try {
     const { date, dayOfWeek, breakfast, lunch, snacks, dinner, isVeg } = req.body;
-    const menuDate = new Date(date);
-    menuDate.setHours(0, 0, 0, 0);
+    const { error, menuDate, normalizedMeals } = validateMenuPayload({ date, dayOfWeek, breakfast, lunch, snacks, dinner });
+    if (error) return res.status(400).json({ error });
 
     const menu = await prisma.foodMenu.update({
       where: { id: req.params.id },
-      data: { date: menuDate, dayOfWeek, breakfast, lunch, snacks, dinner, isVeg },
+      data: { date: menuDate, dayOfWeek, ...normalizedMeals, isVeg: Boolean(isVeg) },
     });
     res.json({ message: 'Menu updated', menu });
   } catch (err) {

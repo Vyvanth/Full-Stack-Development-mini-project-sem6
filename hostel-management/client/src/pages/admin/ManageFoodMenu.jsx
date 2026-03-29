@@ -4,6 +4,16 @@ import api from '../../api/client';
 import toast from 'react-hot-toast';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const MAX_MEAL_ITEMS = 10;
+const MAX_ITEM_LENGTH = 60;
+const MEAL_ITEM_PATTERN = /[A-Za-z0-9]/;
+
+const getToday = () => new Date().toISOString().split('T')[0];
+
+const parseMealItems = (value) => value
+  .split(',')
+  .map((item) => item.trim())
+  .filter(Boolean);
 
 export default function ManageFoodMenu() {
   const [menus, setMenus] = useState([]);
@@ -35,14 +45,44 @@ export default function ManageFoodMenu() {
     setForm({ ...form, date: e.target.value, dayOfWeek: DAYS[d.getDay()] });
   };
 
+  const validateForm = () => {
+    if (!form.date) return 'Date is required';
+
+    const selectedDate = new Date(form.date);
+    if (Number.isNaN(selectedDate.getTime())) return 'Please choose a valid date';
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) return 'Date cannot be in the past';
+    if (!form.dayOfWeek || form.dayOfWeek !== DAYS[selectedDate.getDay()]) return 'Day must match the selected date';
+
+    for (const [label, key] of [['Breakfast', 'breakfast'], ['Lunch', 'lunch'], ['Snacks', 'snacks'], ['Dinner', 'dinner']]) {
+      const items = parseMealItems(form[key]);
+      if (items.length === 0) return `${label} must have at least one item`;
+      if (items.length > MAX_MEAL_ITEMS) return `${label} can have at most ${MAX_MEAL_ITEMS} items`;
+      if (items.some((item) => item.length > MAX_ITEM_LENGTH)) return `${label} items must be ${MAX_ITEM_LENGTH} characters or less`;
+      if (items.some((item) => !MEAL_ITEM_PATTERN.test(item))) return `${label} items must contain real food names, not only symbols`;
+    }
+
+    return '';
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const validationError = validateForm();
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
+
     const payload = {
       ...form,
-      breakfast: form.breakfast.split(',').map(s => s.trim()).filter(Boolean),
-      lunch: form.lunch.split(',').map(s => s.trim()).filter(Boolean),
-      snacks: form.snacks.split(',').map(s => s.trim()).filter(Boolean),
-      dinner: form.dinner.split(',').map(s => s.trim()).filter(Boolean),
+      breakfast: parseMealItems(form.breakfast),
+      lunch: parseMealItems(form.lunch),
+      snacks: parseMealItems(form.snacks),
+      dinner: parseMealItems(form.dinner),
     };
     try {
       if (editingId) {
@@ -95,11 +135,11 @@ export default function ManageFoodMenu() {
             ) : null}
           </div>
           <form onSubmit={handleSubmit} className="space-y-3">
-            <div><label className="label">Date</label><input type="date" required className="input" value={form.date} onChange={handleDateChange} /></div>
+            <div><label className="label">Date</label><input type="date" required min={getToday()} className="input" value={form.date} onChange={handleDateChange} /></div>
             <div><label className="label">Day</label><input className="input bg-slate-50" readOnly value={form.dayOfWeek} /></div>
             {[['Breakfast', 'breakfast'], ['Lunch', 'lunch'], ['Snacks', 'snacks'], ['Dinner', 'dinner']].map(([l, k]) => (
               <div key={k}><label className="label">{l} <span className="text-slate-400 font-normal"></span></label>
-                <input className="input" placeholder="Item 1, Item 2..." value={form[k]} onChange={e => setForm({ ...form, [k]: e.target.value })} /></div>
+                <input className="input" required maxLength={MAX_MEAL_ITEMS * MAX_ITEM_LENGTH} placeholder="Item 1, Item 2..." value={form[k]} onChange={e => setForm({ ...form, [k]: e.target.value })} /></div>
             ))}
             <div className="flex items-center gap-2">
               <input type="checkbox" id="isVeg" checked={form.isVeg} onChange={e => setForm({ ...form, isVeg: e.target.checked })} className="rounded" />
