@@ -196,17 +196,17 @@ export default function PaymentManagement() {
                       <td className="px-4 py-3">{p.fee?.title}</td>
                   <td className="px-4 py-3 font-semibold">₹{p.amount.toLocaleString()}</td>
                       <td className="px-4 py-3">{statusBadge(p.status)}</td>
-                      <td className="px-4 py-3 text-slate-500">{p.paidAt ? new Date(p.paidAt).toLocaleDateString('en-IN') : 'â€”'}</td>
+                      <td className="px-4 py-3 text-slate-500">{p.paidAt ? new Date(p.paidAt).toLocaleDateString('en-IN') : '-'}</td>
                       <td className="px-4 py-3">
                         {p.status !== 'PAID' ? (
                           <button onClick={() => markPaid(p)}
                             className="text-xs bg-green-100 text-green-700 hover:bg-green-200 font-medium px-3 py-1 rounded-lg transition-colors">
-                            âœ“ Mark Received
+                            Mark Received
                           </button>
                         ) : (
                           <button onClick={() => markPending(p)}
                             className="text-xs bg-slate-100 text-slate-500 hover:bg-slate-200 font-medium px-3 py-1 rounded-lg transition-colors">
-                            â†© Revert
+                            Revert
                           </button>
                         )}
                       </td>
@@ -231,7 +231,7 @@ export default function PaymentManagement() {
             <form onSubmit={handleFeeSubmit} className="space-y-3">
               <div>
                 <label className="label">Title</label>
-                <input required className="input" placeholder="e.g. Hostel Fee Q1"
+                <input required className="input" placeholder="e.g. Hostel Fee "
                   value={feeForm.title} onChange={e => setFeeForm({ ...feeForm, title: e.target.value })} />
               </div>
               <div>
@@ -294,11 +294,11 @@ export default function PaymentManagement() {
                         <div className="flex gap-2">
                           <button onClick={() => startEdit(f)}
                             className="text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 font-medium px-3 py-1 rounded-lg transition-colors">
-                            âœï¸ Edit
+                            Edit
                           </button>
                           <button onClick={() => deleteFee(f)}
                             className="text-xs bg-red-100 text-red-700 hover:bg-red-200 font-medium px-3 py-1 rounded-lg transition-colors">
-                            ðŸ—‘ Delete
+                            Delete
                           </button>
                         </div>
                       </td>
