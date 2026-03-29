@@ -7,14 +7,24 @@ const STATUS_COLORS = { AVAILABLE: 'green', OCCUPIED: 'blue', FULL: 'red', MAINT
 
 export default function RoomManagement() {
   const [rooms, setRooms] = useState([]);
+  const [availableRooms, setAvailableRooms] = useState([]);
   const [students, setStudents] = useState([]);
   const [form, setForm] = useState({ roomNumber: '', block: 'A', floor: '', capacity: '3' });
   const [alloc, setAlloc] = useState({ studentId: '', roomId: '' });
 
   const fetchRooms = () => api.get('/rooms').then(({ data }) => setRooms(data.rooms));
   const fetchStudents = () => api.get('/students?limit=100').then(({ data }) => setStudents(data.students));
+  const fetchAvailableRooms = async (gender) => {
+    const { data } = await api.get('/rooms/available', { params: gender ? { gender } : {} });
+    setAvailableRooms(data.rooms);
+  };
 
-  useEffect(() => { fetchRooms(); fetchStudents(); }, []);
+  useEffect(() => { fetchRooms(); fetchStudents(); fetchAvailableRooms(); }, []);
+
+  useEffect(() => {
+    const selected = students.find((student) => student.id === alloc.studentId);
+    fetchAvailableRooms(selected?.gender).catch(() => setAvailableRooms([]));
+  }, [alloc.studentId, students]);
 
   const handleCreateRoom = async (e) => {
     e.preventDefault();
@@ -24,18 +34,34 @@ export default function RoomManagement() {
 
   const handleAllocate = async (e) => {
     e.preventDefault();
-    try { await api.post('/rooms/allocate', alloc); toast.success('Room allocated!'); setAlloc({ studentId: '', roomId: '' }); fetchRooms(); }
+    try {
+      await api.post('/rooms/allocate', alloc);
+      toast.success('Room allocated!');
+      setAlloc({ studentId: '', roomId: '' });
+      fetchRooms();
+      fetchStudents();
+      fetchAvailableRooms();
+    }
     catch (err) { toast.error(err.response?.data?.error || 'Allocation failed'); }
+  };
+
+  const handleDeallocate = async (studentId) => {
+    try {
+      await api.delete(`/rooms/deallocate/${studentId}`);
+      toast.success('Room deallocated');
+      fetchRooms();
+      fetchStudents();
+      const selected = students.find((student) => student.id === alloc.studentId);
+      fetchAvailableRooms(selected?.gender);
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Deallocation failed');
+    }
   };
 
   const unallocatedStudents = students.filter(s => !s.roomAllocation?.isActive);
   const selectedStudent = unallocatedStudents.find((student) => student.id === alloc.studentId);
   const allowedBlock = selectedStudent?.gender === 'FEMALE' ? 'B' : selectedStudent?.gender === 'MALE' ? 'A' : null;
-  const visibleRooms = rooms.filter((room) => {
-    if (room.status === 'FULL' || room.status === 'MAINTENANCE') return false;
-    if (!allowedBlock) return true;
-    return room.block === allowedBlock;
-  });
+  const visibleRooms = allowedBlock ? availableRooms.filter((room) => room.block === allowedBlock) : availableRooms;
 
   return (
     <div>
@@ -87,7 +113,14 @@ export default function RoomManagement() {
           <div className="space-y-2">
             {Object.entries(STATUS_COLORS).map(([status, color]) => {
               const count = rooms.filter(r => r.status === status).length;
-              return <div key={status} className="flex justify-between text-sm"><span className="text-slate-500">{status}</span><span className={`font-semibold text-${color}-600`}>{count}</span></div>;
+              const colorClass = color === 'green'
+                ? 'text-green-600'
+                : color === 'blue'
+                  ? 'text-blue-600'
+                  : color === 'red'
+                    ? 'text-red-600'
+                    : 'text-yellow-600';
+              return <div key={status} className="flex justify-between text-sm"><span className="text-slate-500">{status}</span><span className={`font-semibold ${colorClass}`}>{count}</span></div>;
             })}
             <div className="border-t border-slate-100 pt-2 flex justify-between text-sm font-semibold"><span>Total</span><span>{rooms.length}</span></div>
           </div>
@@ -97,15 +130,33 @@ export default function RoomManagement() {
       <div className="card overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-100"><h2 className="font-semibold">All Rooms</h2></div>
         <table className="w-full text-sm">
-          <thead className="bg-slate-50"><tr>{['Room', 'Block', 'Floor', 'Capacity', 'Occupants', 'Status'].map(h => <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">{h}</th>)}</tr></thead>
+          <thead className="bg-slate-50"><tr>{['Room', 'Block', 'Floor', 'Capacity', 'Occupants', 'Status', 'Action'].map(h => <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">{h}</th>)}</tr></thead>
           <tbody>{rooms.map(r => (
             <tr key={r.id} className="border-t border-slate-50">
               <td className="px-4 py-3 font-medium">{r.roomNumber}</td>
               <td className="px-4 py-3">{r.block}</td>
               <td className="px-4 py-3">{r.floor}</td>
               <td className="px-4 py-3">{r.capacity}</td>
-              <td className="px-4 py-3">{r.occupiedCount}/{r.capacity} Â· {r.allocations?.map(a => a.student.fullName).join(', ') || 'â€”'}</td>
+              <td className="px-4 py-3">{r.occupiedCount}/{r.capacity} - {r.allocations?.map(a => a.student.fullName).join(', ') || '-'}</td>
               <td className="px-4 py-3"><span className={`badge-${r.status === 'AVAILABLE' ? 'approved' : r.status === 'FULL' ? 'rejected' : 'pending'}`}>{r.status}</span></td>
+              <td className="px-4 py-3">
+                {r.allocations?.length ? (
+                  <div className="flex flex-wrap gap-2">
+                    {r.allocations.map((allocation) => (
+                      <button
+                        key={allocation.id}
+                        type="button"
+                        className="text-xs font-medium text-rose-600 hover:text-rose-700"
+                        onClick={() => handleDeallocate(allocation.student.id)}
+                      >
+                        Vacate {allocation.student.fullName}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-slate-400">-</span>
+                )}
+              </td>
             </tr>
           ))}</tbody>
         </table>

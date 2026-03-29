@@ -19,7 +19,7 @@ router.get('/', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) => {
       include: {
         allocations: {
           where: { isActive: true },
-          include: { student: { select: { fullName: true, rollNumber: true } } },
+          include: { student: { select: { id: true, fullName: true, rollNumber: true, gender: true } } },
         },
       },
       orderBy: [{ block: 'asc' }, { floor: 'asc' }, { roomNumber: 'asc' }],
