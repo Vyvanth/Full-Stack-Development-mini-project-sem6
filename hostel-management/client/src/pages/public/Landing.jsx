@@ -2,7 +2,7 @@
 import { Link } from 'react-router-dom';
 
 const features = [
-  { icon: '🛏️', title: 'Room Management', desc: 'Automated allocation and real-time occupancy tracking.' },
+  { icon: '🛏', title: 'Room Management', desc: 'Automated allocation and real-time occupancy tracking.' },
   { icon: '💳', title: 'Fee Payments', desc: 'Integrated Razorpay payments with instant receipts.' },
   { icon: '📋', title: 'Complaint Tracking', desc: 'Submit and track complaints with priority handling.' },
   { icon: '🍽️', title: 'Food Menu', desc: 'Weekly menu updates with student feedback.' },

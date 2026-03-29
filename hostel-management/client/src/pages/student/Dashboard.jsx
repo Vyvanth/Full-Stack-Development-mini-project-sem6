@@ -51,7 +51,7 @@ export default function StudentDashboard() {
           sub={profile?.roomAllocation ? `Block ${profile.roomAllocation.room.block}, Floor ${profile.roomAllocation.room.floor}` : 'Contact admin'}
           color="primary"
           link="/student/room"
-          icon="🛏️"
+          icon="🛏"
         />
         <StatCard
           label="Pending Payments"
