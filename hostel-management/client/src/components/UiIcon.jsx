@@ -26,3 +26,4 @@ export default function UiIcon({ label, tone = 'slate', size = 'md', dark = fals
     </span>
   );
 }
+

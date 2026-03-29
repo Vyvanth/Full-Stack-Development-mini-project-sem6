@@ -31,7 +31,7 @@ export default function AdminLayout() {
         <div className="px-6 py-5 border-b border-slate-700">
           <div className="flex items-center gap-3">
             <BrandMark compact dark />
-            <h1 className="text-lg font-bold text-white tracking-tight">HostelMS</h1>
+            <h1 className="text-lg font-bold text-white tracking-tight">Campus Nest</h1>
           </div>
           <p className="text-xs text-slate-400 mt-2">Admin Panel · {user?.role}</p>
         </div>
@@ -78,3 +78,4 @@ export default function AdminLayout() {
     </div>
   );
 }
+

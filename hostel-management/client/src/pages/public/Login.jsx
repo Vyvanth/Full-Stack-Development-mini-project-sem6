@@ -43,7 +43,7 @@ export default function Login() {
         </div>
 
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-3 text-2xl font-bold text-primary-700"><BrandMark />HostelMS</Link>
+          <Link to="/" className="inline-flex items-center gap-3 text-2xl font-bold text-primary-700"><BrandMark />Campus Nest</Link>
           <h2 className="mt-4 text-xl font-semibold text-slate-800">Sign in to your account</h2>
           <p className="mt-1 text-sm text-slate-500">Don't have an account? <Link to="/register" className="text-primary-600 font-medium hover:underline">Register</Link></p>
         </div>
@@ -72,4 +72,5 @@ export default function Login() {
     </div>
   );
 }
+
 

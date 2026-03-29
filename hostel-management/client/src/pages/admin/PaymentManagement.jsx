@@ -1,4 +1,4 @@
-// src/pages/admin/PaymentManagement.jsx
+﻿// src/pages/admin/PaymentManagement.jsx
 import { useState, useEffect } from 'react';
 import api from '../../api/client';
 import toast from 'react-hot-toast';
@@ -33,20 +33,20 @@ export default function PaymentManagement() {
 
   useEffect(() => { fetchAll(); }, []);
 
-  // ── Stats ──────────────────────────────────────────────────────────────────
+  // â”€â”€ Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const totalRevenue = payments.filter(p => p.status === 'PAID').reduce((s, p) => s + p.amount, 0);
   const totalPending = payments.filter(p => p.status === 'PENDING').reduce((s, p) => s + p.amount, 0);
   const paidCount = payments.filter(p => p.status === 'PAID').length;
   const pendingCount = payments.filter(p => p.status === 'PENDING').length;
 
-  // ── Filtered payments ──────────────────────────────────────────────────────
+  // â”€â”€ Filtered payments â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const filteredPayments = payments.filter(p => {
     if (filterStatus && p.status !== filterStatus) return false;
     if (filterFee && p.feeId !== filterFee) return false;
     return true;
   });
 
-  // ── Create or Update Fee ───────────────────────────────────────────────────
+  // â”€â”€ Create or Update Fee â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleFeeSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -82,7 +82,7 @@ export default function PaymentManagement() {
     setFeeForm(EMPTY_FEE_FORM);
   };
 
-  // ── Delete Fee ─────────────────────────────────────────────────────────────
+  // â”€â”€ Delete Fee â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const deleteFee = async (fee) => {
     if (!window.confirm(`Delete "${fee.title}"? This will also remove all related payment records.`)) return;
     try {
@@ -94,9 +94,9 @@ export default function PaymentManagement() {
     }
   };
 
-  // ── Mark payment as paid (cash) ────────────────────────────────────────────
+  // â”€â”€ Mark payment as paid (cash) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const markPaid = async (payment) => {
-    if (!window.confirm(`Mark ₹${payment.amount} payment for ${payment.student?.fullName} as paid (cash)?`)) return;
+    if (!window.confirm(`Mark â‚¹${payment.amount} payment for ${payment.student?.fullName} as paid (cash)?`)) return;
     try {
       await api.patch(`/payments/${payment.id}`, { status: 'PAID' });
       toast.success('Payment marked as received!');
@@ -106,7 +106,7 @@ export default function PaymentManagement() {
     }
   };
 
-  // ── Mark payment as pending ────────────────────────────────────────────────
+  // â”€â”€ Mark payment as pending â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const markPending = async (payment) => {
     if (!window.confirm(`Revert payment for ${payment.student?.fullName} back to PENDING?`)) return;
     try {
@@ -128,11 +128,11 @@ export default function PaymentManagement() {
     <div>
       <h1 className="text-2xl font-bold text-slate-800 mb-6">Payment Management</h1>
 
-      {/* ── Stats ── */}
+      {/* â”€â”€ Stats â”€â”€ */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'Total Collected', value: `₹${totalRevenue.toLocaleString()}`, color: 'green' },
-          { label: 'Total Pending', value: `₹${totalPending.toLocaleString()}`, color: 'yellow' },
+          { label: 'Total Collected', value: `â‚¹${totalRevenue.toLocaleString()}`, color: 'green' },
+          { label: 'Total Pending', value: `â‚¹${totalPending.toLocaleString()}`, color: 'yellow' },
           { label: 'Paid Payments', value: paidCount, color: 'blue' },
           { label: 'Pending Payments', value: pendingCount, color: 'red' },
         ].map(({ label, value, color }) => (
@@ -143,7 +143,7 @@ export default function PaymentManagement() {
         ))}
       </div>
 
-      {/* ── Tabs ── */}
+      {/* â”€â”€ Tabs â”€â”€ */}
       <div className="flex gap-2 mb-4">
         {[['transactions', 'Transactions'], ['fees', 'Manage Fees']].map(([key, label]) => (
           <button key={key} onClick={() => setActiveTab(key)}
@@ -153,7 +153,7 @@ export default function PaymentManagement() {
         ))}
       </div>
 
-      {/* ══ TRANSACTIONS TAB ══════════════════════════════════════════════════ */}
+      {/* â•â• TRANSACTIONS TAB â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       {activeTab === 'transactions' && (
         <div>
           {/* Filters */}
@@ -194,19 +194,19 @@ export default function PaymentManagement() {
                       <td className="px-4 py-3 font-medium">{p.student?.fullName}</td>
                       <td className="px-4 py-3 text-slate-400 text-xs font-mono">{p.student?.rollNumber}</td>
                       <td className="px-4 py-3">{p.fee?.title}</td>
-                      <td className="px-4 py-3 font-semibold">₹{p.amount.toLocaleString()}</td>
+                      <td className="px-4 py-3 font-semibold">â‚¹{p.amount.toLocaleString()}</td>
                       <td className="px-4 py-3">{statusBadge(p.status)}</td>
-                      <td className="px-4 py-3 text-slate-500">{p.paidAt ? new Date(p.paidAt).toLocaleDateString('en-IN') : '—'}</td>
+                      <td className="px-4 py-3 text-slate-500">{p.paidAt ? new Date(p.paidAt).toLocaleDateString('en-IN') : 'â€”'}</td>
                       <td className="px-4 py-3">
                         {p.status !== 'PAID' ? (
                           <button onClick={() => markPaid(p)}
                             className="text-xs bg-green-100 text-green-700 hover:bg-green-200 font-medium px-3 py-1 rounded-lg transition-colors">
-                            ✓ Mark Received
+                            âœ“ Mark Received
                           </button>
                         ) : (
                           <button onClick={() => markPending(p)}
                             className="text-xs bg-slate-100 text-slate-500 hover:bg-slate-200 font-medium px-3 py-1 rounded-lg transition-colors">
-                            ↩ Revert
+                            â†© Revert
                           </button>
                         )}
                       </td>
@@ -219,7 +219,7 @@ export default function PaymentManagement() {
         </div>
       )}
 
-      {/* ══ FEES TAB ══════════════════════════════════════════════════════════ */}
+      {/* â•â• FEES TAB â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       {activeTab === 'fees' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
@@ -235,7 +235,7 @@ export default function PaymentManagement() {
                   value={feeForm.title} onChange={e => setFeeForm({ ...feeForm, title: e.target.value })} />
               </div>
               <div>
-                <label className="label">Amount (₹)</label>
+                <label className="label">Amount (â‚¹)</label>
                 <input type="number" required min="1" className="input"
                   value={feeForm.amount} onChange={e => setFeeForm({ ...feeForm, amount: e.target.value })} />
               </div>
@@ -287,18 +287,18 @@ export default function PaymentManagement() {
                   {fees.map(f => (
                     <tr key={f.id} className="border-t border-slate-50 hover:bg-slate-50">
                       <td className="px-4 py-3 font-medium">{f.title}</td>
-                      <td className="px-4 py-3 font-semibold text-slate-700">₹{f.amount.toLocaleString()}</td>
+                      <td className="px-4 py-3 font-semibold text-slate-700">â‚¹{f.amount.toLocaleString()}</td>
                       <td className="px-4 py-3 text-slate-500">{new Date(f.dueDate).toLocaleDateString('en-IN')}</td>
                       <td className="px-4 py-3 text-slate-500">{f.academicYear}</td>
                       <td className="px-4 py-3">
                         <div className="flex gap-2">
                           <button onClick={() => startEdit(f)}
                             className="text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 font-medium px-3 py-1 rounded-lg transition-colors">
-                            ✏️ Edit
+                            âœï¸ Edit
                           </button>
                           <button onClick={() => deleteFee(f)}
                             className="text-xs bg-red-100 text-red-700 hover:bg-red-200 font-medium px-3 py-1 rounded-lg transition-colors">
-                            🗑 Delete
+                            ðŸ—‘ Delete
                           </button>
                         </div>
                       </td>

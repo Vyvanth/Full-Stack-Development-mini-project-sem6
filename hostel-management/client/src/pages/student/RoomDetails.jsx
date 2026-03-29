@@ -1,4 +1,4 @@
-// src/pages/student/RoomDetails.jsx
+﻿// src/pages/student/RoomDetails.jsx
 import { useState, useEffect } from 'react';
 import api from '../../api/client';
 
@@ -52,3 +52,4 @@ export default function RoomDetails() {
     </div>
   );
 }
+

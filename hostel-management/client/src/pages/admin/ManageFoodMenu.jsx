@@ -1,4 +1,4 @@
-// src/pages/admin/ManageFoodMenu.jsx
+﻿// src/pages/admin/ManageFoodMenu.jsx
 import { useState, useEffect } from 'react';
 import api from '../../api/client';
 import toast from 'react-hot-toast';
@@ -53,11 +53,11 @@ export default function ManageFoodMenu() {
           {menus.length === 0 ? <div className="card p-8 text-center text-slate-400">No menus yet</div> : menus.map(menu => (
             <div key={menu.id} className="card p-5">
               <div className="flex items-center justify-between mb-3">
-                <p className="font-semibold text-slate-700">{menu.dayOfWeek} — {new Date(menu.date).toLocaleDateString()}</p>
-                {menu.isVeg && <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full">🌿 Veg</span>}
+                <p className="font-semibold text-slate-700">{menu.dayOfWeek} â€” {new Date(menu.date).toLocaleDateString()}</p>
+                {menu.isVeg && <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full">ðŸŒ¿ Veg</span>}
               </div>
               <div className="grid grid-cols-2 gap-3 text-sm">
-                {[['☀️ Breakfast', menu.breakfast], ['🌤️ Lunch', menu.lunch], ['🌙 Snacks', menu.snacks], ['🌃 Dinner', menu.dinner]].map(([l, items]) => (
+                {[['â˜€ï¸ Breakfast', menu.breakfast], ['ðŸŒ¤ï¸ Lunch', menu.lunch], ['ðŸŒ™ Snacks', menu.snacks], ['ðŸŒƒ Dinner', menu.dinner]].map(([l, items]) => (
                   <div key={l}><p className="text-xs font-semibold text-slate-500 mb-1">{l}</p><p className="text-slate-700">{items?.join(', ')}</p></div>
                 ))}
               </div>
@@ -68,3 +68,4 @@ export default function ManageFoodMenu() {
     </div>
   );
 }
+

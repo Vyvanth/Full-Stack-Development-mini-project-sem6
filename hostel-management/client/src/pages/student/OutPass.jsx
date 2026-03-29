@@ -1,4 +1,4 @@
-// src/pages/student/OutPass.jsx
+﻿// src/pages/student/OutPass.jsx
 import { useState, useEffect } from 'react';
 import api from '../../api/client';
 import toast from 'react-hot-toast';
@@ -49,3 +49,4 @@ export default function OutPass() {
     </div>
   );
 }
+

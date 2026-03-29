@@ -1,4 +1,4 @@
-// src/pages/student/Payments.jsx
+﻿// src/pages/student/Payments.jsx
 import { useState, useEffect } from 'react';
 import api from '../../api/client';
 import toast from 'react-hot-toast';
@@ -54,7 +54,7 @@ export default function Payments() {
         key: keyId,
         amount: order.amount,
         currency: order.currency,
-        name: 'HostelMS',
+        name: 'Campus Nest',
         description: payment.fee.title,
         order_id: order.id,
         handler: async (response) => {
@@ -112,9 +112,9 @@ export default function Payments() {
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         {[
-          ['Total Payable', `₹${total.toLocaleString()}`, 'slate'],
-          ['Paid', `₹${paid.toLocaleString()}`, 'green'],
-          ['Outstanding', `₹${outstanding.toLocaleString()}`, outstanding > 0 ? 'red' : 'green'],
+          ['Total Payable', `â‚¹${total.toLocaleString()}`, 'slate'],
+          ['Paid', `â‚¹${paid.toLocaleString()}`, 'green'],
+          ['Outstanding', `â‚¹${outstanding.toLocaleString()}`, outstanding > 0 ? 'red' : 'green'],
         ].map(([label, value, color]) => (
           <div key={label} className="card p-5">
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{label}</p>
@@ -146,13 +146,13 @@ export default function Payments() {
               {payments.map(p => (
                 <tr key={p.id} className="border-t border-slate-50 hover:bg-slate-50 transition-colors">
                   <td className="px-4 py-3 font-medium text-slate-800">{p.fee?.title}</td>
-                  <td className="px-4 py-3 text-slate-700 font-semibold">₹{p.amount.toLocaleString()}</td>
+                  <td className="px-4 py-3 text-slate-700 font-semibold">â‚¹{p.amount.toLocaleString()}</td>
                   <td className="px-4 py-3 text-slate-500">
-                    {p.fee?.dueDate ? new Date(p.fee.dueDate).toLocaleDateString('en-IN') : '—'}
+                    {p.fee?.dueDate ? new Date(p.fee.dueDate).toLocaleDateString('en-IN') : 'â€”'}
                   </td>
                   <td className="px-4 py-3">{statusBadge(p.status)}</td>
                   <td className="px-4 py-3 text-slate-500">
-                    {p.paidAt ? new Date(p.paidAt).toLocaleDateString('en-IN') : '—'}
+                    {p.paidAt ? new Date(p.paidAt).toLocaleDateString('en-IN') : 'â€”'}
                   </td>
                   <td className="px-4 py-3">
                     {p.status === 'PENDING' || p.status === 'OVERDUE' ? (
@@ -164,7 +164,7 @@ export default function Payments() {
                         {payingId === p.id ? 'Processing...' : 'Pay Now'}
                       </button>
                     ) : (
-                      <span className="text-xs text-slate-400">—</span>
+                      <span className="text-xs text-slate-400">â€”</span>
                     )}
                   </td>
                 </tr>
@@ -181,4 +181,5 @@ export default function Payments() {
     </div>
   );
 }
+
 

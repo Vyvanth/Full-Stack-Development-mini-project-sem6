@@ -1,4 +1,4 @@
-// src/pages/student/Profile.jsx
+﻿// src/pages/student/Profile.jsx
 import { useState, useEffect } from 'react';
 import api from '../../api/client';
 import toast from 'react-hot-toast';
@@ -57,7 +57,7 @@ export default function Profile() {
               </div>
             ))}
             <div><label className="label">Roll Number</label><p className="text-sm text-slate-800 py-2">{profile.rollNumber}</p></div>
-            <div><label className="label">Course / Branch</label><p className="text-sm text-slate-800 py-2">{profile.course} · {profile.branch}</p></div>
+            <div><label className="label">Course / Branch</label><p className="text-sm text-slate-800 py-2">{profile.course} Â· {profile.branch}</p></div>
           </div>
         </div>
 
@@ -77,3 +77,4 @@ export default function Profile() {
     </div>
   );
 }
+

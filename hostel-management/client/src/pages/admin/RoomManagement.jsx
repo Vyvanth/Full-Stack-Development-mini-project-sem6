@@ -1,4 +1,4 @@
-// src/pages/admin/RoomManagement.jsx
+﻿// src/pages/admin/RoomManagement.jsx
 import { useState, useEffect } from 'react';
 import api from '../../api/client';
 import toast from 'react-hot-toast';
@@ -104,7 +104,7 @@ export default function RoomManagement() {
               <td className="px-4 py-3">{r.block}</td>
               <td className="px-4 py-3">{r.floor}</td>
               <td className="px-4 py-3">{r.capacity}</td>
-              <td className="px-4 py-3">{r.occupiedCount}/{r.capacity} · {r.allocations?.map(a => a.student.fullName).join(', ') || '—'}</td>
+              <td className="px-4 py-3">{r.occupiedCount}/{r.capacity} Â· {r.allocations?.map(a => a.student.fullName).join(', ') || 'â€”'}</td>
               <td className="px-4 py-3"><span className={`badge-${r.status === 'AVAILABLE' ? 'approved' : r.status === 'FULL' ? 'rejected' : 'pending'}`}>{r.status}</span></td>
             </tr>
           ))}</tbody>
@@ -113,3 +113,4 @@ export default function RoomManagement() {
     </div>
   );
 }
+

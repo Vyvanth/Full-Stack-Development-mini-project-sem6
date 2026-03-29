@@ -1,4 +1,4 @@
-// src/pages/student/HomePass.jsx
+﻿// src/pages/student/HomePass.jsx
 import { useState, useEffect } from 'react';
 import api from '../../api/client';
 import toast from 'react-hot-toast';
@@ -50,3 +50,4 @@ export default function HomePass() {
     </div>
   );
 }
+

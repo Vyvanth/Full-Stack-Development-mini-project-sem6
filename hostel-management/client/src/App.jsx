@@ -1,4 +1,4 @@
-// src/App.jsx
+﻿// src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -90,7 +90,7 @@ function AppRoutes() {
         <Route path="passes" element={<PassApproval />} />
       </Route>
 
-      <Route path="/unauthorized" element={<div className="flex items-center justify-center h-screen text-xl font-semibold text-red-500">403 — Unauthorized</div>} />
+      <Route path="/unauthorized" element={<div className="flex items-center justify-center h-screen text-xl font-semibold text-red-500">403 â€” Unauthorized</div>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
@@ -106,3 +106,4 @@ export default function App() {
     </AuthProvider>
   );
 }
+

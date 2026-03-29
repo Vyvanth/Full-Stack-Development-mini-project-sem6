@@ -23,7 +23,7 @@ export default function Landing() {
       <nav className="flex items-center justify-between px-8 py-5 max-w-6xl mx-auto">
         <div className="flex items-center gap-3">
           <BrandMark compact dark />
-          <span className="text-lg font-bold tracking-tight text-white">HostelMS</span>
+          <span className="text-lg font-bold tracking-tight text-white">Campus Nest</span>
         </div>
         <div className="flex gap-4">
           <Link to="/login" className="px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors">Login</Link>
@@ -34,10 +34,10 @@ export default function Landing() {
       <section className="max-w-4xl mx-auto px-8 py-24 text-center">
         <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-1.5 mb-8">
           <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-          <span className="text-xs font-medium text-white/70 tracking-wide">Smart Hostel Management</span>
+          <span className="text-xs font-medium text-white/70 tracking-wide">Smart Campus Living</span>
         </div>
         <h1 className="text-5xl font-bold tracking-tight mb-6 leading-tight">
-          Hostel Management
+          Campus Nest
           <br />
           <span className="text-primary-400">Made Simple</span>
         </h1>
@@ -66,9 +66,9 @@ export default function Landing() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <BrandMark compact dark />
-            <span className="text-sm font-bold text-white/80 tracking-tight">HostelMS</span>
+            <span className="text-sm font-bold text-white/80 tracking-tight">Campus Nest</span>
           </div>
-          <p className="text-xs text-white/30">© {new Date().getFullYear()} HostelMS. All rights reserved.</p>
+          <p className="text-xs text-white/30">© {new Date().getFullYear()} Campus Nest. All rights reserved.</p>
           <div className="flex items-center gap-6">
             {footerLinks.map(({ label, to }) => (
               <Link key={label} to={to} className="text-xs text-white/30 hover:text-white/60 transition-colors">{label}</Link>
@@ -79,3 +79,4 @@ export default function Landing() {
     </div>
   );
 }
+

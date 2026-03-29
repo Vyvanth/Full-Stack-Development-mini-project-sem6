@@ -1,4 +1,4 @@
-// src/pages/admin/PassApproval.jsx
+﻿// src/pages/admin/PassApproval.jsx
 import { useState, useEffect } from 'react';
 import api from '../../api/client';
 import toast from 'react-hot-toast';
@@ -82,3 +82,4 @@ export default function PassApproval() {
     </div>
   );
 }
+

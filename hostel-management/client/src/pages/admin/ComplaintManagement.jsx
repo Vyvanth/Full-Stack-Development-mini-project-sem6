@@ -1,4 +1,4 @@
-// src/pages/admin/ComplaintManagement.jsx
+﻿// src/pages/admin/ComplaintManagement.jsx
 import { useState, useEffect } from 'react';
 import api from '../../api/client';
 import toast from 'react-hot-toast';
@@ -51,3 +51,4 @@ export default function ComplaintManagement() {
     </div>
   );
 }
+

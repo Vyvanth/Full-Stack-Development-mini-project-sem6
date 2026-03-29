@@ -149,7 +149,7 @@ export default function Register() {
         </div>
 
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-3 text-2xl font-bold text-primary-700"><BrandMark />HostelMS</Link>
+          <Link to="/" className="inline-flex items-center gap-3 text-2xl font-bold text-primary-700"><BrandMark />Campus Nest</Link>
           <h2 className="mt-4 text-xl font-semibold text-slate-800">Create your account</h2>
           <p className="mt-1 text-sm text-slate-500">Already registered? <Link to="/login" className="text-primary-600 font-medium hover:underline">Sign in</Link></p>
         </div>
@@ -235,4 +235,5 @@ export default function Register() {
     </div>
   );
 }
+
 

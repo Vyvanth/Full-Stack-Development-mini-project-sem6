@@ -1,4 +1,4 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -53,3 +53,4 @@
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { @apply bg-slate-100; }
 ::-webkit-scrollbar-thumb { @apply bg-slate-300 rounded; }
+

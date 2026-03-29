@@ -32,7 +32,7 @@ export default function StudentLayout() {
         <div className="px-6 py-5 border-b border-slate-100">
           <div className="flex items-center gap-3">
             <BrandMark compact />
-            <h1 className="text-lg font-bold text-primary-700 tracking-tight">HostelMS</h1>
+            <h1 className="text-lg font-bold text-primary-700 tracking-tight">Campus Nest</h1>
           </div>
           <p className="text-xs text-slate-400 mt-2">{user?.student?.rollNumber || 'Student Portal'}</p>
         </div>
@@ -77,3 +77,4 @@ export default function StudentLayout() {
     </div>
   );
 }
+

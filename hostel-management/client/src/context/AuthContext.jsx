@@ -1,4 +1,4 @@
-// src/context/AuthContext.jsx
+﻿// src/context/AuthContext.jsx
 import { createContext, useContext, useState, useEffect } from 'react';
 import api from '../api/client';
 
@@ -55,3 +55,4 @@ export const useAuth = () => {
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');
   return ctx;
 };
+
