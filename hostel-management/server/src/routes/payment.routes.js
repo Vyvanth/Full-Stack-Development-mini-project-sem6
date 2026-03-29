@@ -6,7 +6,6 @@ const { authenticate, authorizeRoles } = require('../middleware/auth.middleware'
 const router = express.Router();
 router.use(authenticate);
 
-// Lazy-load Razorpay only if credentials are set
 const getRazorpay = () => {
   if (!process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID === 'your_razorpay_key_id') {
     throw new Error('Razorpay credentials not configured');
@@ -19,7 +18,6 @@ const getRazorpay = () => {
 };
 
 // ─── GET /api/payments ────────────────────────────────────────────────────────
-// Student: their own payments | Admin: all payments
 router.get('/', async (req, res, next) => {
   try {
     const isAdmin = ['ADMIN', 'WARDEN'].includes(req.user.role);
@@ -41,7 +39,6 @@ router.get('/', async (req, res, next) => {
 });
 
 // ─── GET /api/payments/fees ───────────────────────────────────────────────────
-// List all fee structures
 router.get('/fees', async (req, res, next) => {
   try {
     const fees = await prisma.fee.findMany({ orderBy: { dueDate: 'asc' } });
@@ -52,16 +49,15 @@ router.get('/fees', async (req, res, next) => {
 });
 
 // ─── POST /api/payments/fees ──────────────────────────────────────────────────
-// Admin creates a fee → automatically creates a PENDING Payment for every student
+// Create fee + auto-assign PENDING payment to every student
 router.post('/fees', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) => {
   try {
     const { title, amount, dueDate, academicYear } = req.body;
 
     if (!title || !amount || !dueDate || !academicYear) {
-      return res.status(400).json({ error: 'All fields are required' });
+      return res.status(400).json({ error: 'All fields are required.' });
     }
 
-    // 1. Create the fee record
     const fee = await prisma.fee.create({
       data: {
         title,
@@ -71,12 +67,8 @@ router.post('/fees', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) =
       },
     });
 
-    // 2. Get all students
-    const students = await prisma.student.findMany({
-      select: { id: true },
-    });
+    const students = await prisma.student.findMany({ select: { id: true } });
 
-    // 3. Bulk-create a PENDING payment for every student
     if (students.length > 0) {
       await prisma.payment.createMany({
         data: students.map((s) => ({
@@ -91,18 +83,47 @@ router.post('/fees', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) =
 
     res.status(201).json({
       fee,
-      message: `Fee created and assigned to ${students.length} student(s) as pending payments.`,
+      message: `Fee created and assigned to ${students.length} student(s).`,
     });
   } catch (err) {
     next(err);
   }
 });
 
+// ─── PATCH /api/payments/fees/:id ─────────────────────────────────────────────
+// Edit fee title, amount, dueDate, academicYear
+// Also updates the amount on all PENDING payment records for this fee
+router.patch('/fees/:id', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) => {
+  try {
+    const { title, amount, dueDate, academicYear } = req.body;
+
+    const fee = await prisma.fee.update({
+      where: { id: req.params.id },
+      data: {
+        ...(title && { title }),
+        ...(amount && { amount: Number(amount) }),
+        ...(dueDate && { dueDate: new Date(dueDate) }),
+        ...(academicYear && { academicYear }),
+      },
+    });
+
+    // If amount changed, update all PENDING payments for this fee
+    if (amount) {
+      await prisma.payment.updateMany({
+        where: { feeId: req.params.id, status: 'PENDING' },
+        data: { amount: Number(amount) },
+      });
+    }
+
+    res.json({ fee, message: 'Fee updated. Pending payments updated accordingly.' });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ─── DELETE /api/payments/fees/:id ───────────────────────────────────────────
-// Admin deletes a fee (also removes all associated payment records)
 router.delete('/fees/:id', authorizeRoles('ADMIN'), async (req, res, next) => {
   try {
-    // Delete payments first (FK constraint)
     await prisma.payment.deleteMany({ where: { feeId: req.params.id } });
     await prisma.fee.delete({ where: { id: req.params.id } });
     res.json({ message: 'Fee and all associated payments deleted.' });
@@ -112,7 +133,6 @@ router.delete('/fees/:id', authorizeRoles('ADMIN'), async (req, res, next) => {
 });
 
 // ─── POST /api/payments/create-order ─────────────────────────────────────────
-// Student initiates Razorpay payment
 router.post('/create-order', async (req, res, next) => {
   try {
     const { paymentId } = req.body;
@@ -122,12 +142,12 @@ router.post('/create-order', async (req, res, next) => {
       include: { fee: true },
     });
 
-    if (!payment) return res.status(404).json({ error: 'Payment record not found' });
-    if (payment.status === 'PAID') return res.status(400).json({ error: 'This fee is already paid' });
+    if (!payment) return res.status(404).json({ error: 'Payment record not found.' });
+    if (payment.status === 'PAID') return res.status(400).json({ error: 'This fee is already paid.' });
 
     const razorpay = getRazorpay();
     const order = await razorpay.orders.create({
-      amount: payment.amount * 100, // convert to paise
+      amount: payment.amount * 100,
       currency: 'INR',
       receipt: `receipt_${paymentId}`,
     });
@@ -144,7 +164,6 @@ router.post('/create-order', async (req, res, next) => {
 });
 
 // ─── POST /api/payments/verify ────────────────────────────────────────────────
-// Verify Razorpay payment signature and mark as PAID
 router.post('/verify', async (req, res, next) => {
   try {
     const crypto = require('crypto');
@@ -157,37 +176,39 @@ router.post('/verify', async (req, res, next) => {
       .digest('hex');
 
     if (expectedSig !== razorpay_signature) {
-      return res.status(400).json({ error: 'Invalid payment signature' });
+      return res.status(400).json({ error: 'Invalid payment signature.' });
     }
 
     const payment = await prisma.payment.update({
       where: { id: paymentId },
-      data: {
-        status: 'PAID',
-        razorpayPaymentId: razorpay_payment_id,
-        paidAt: new Date(),
-      },
+      data: { status: 'PAID', razorpayPaymentId: razorpay_payment_id, paidAt: new Date() },
     });
 
-    res.json({ message: 'Payment verified successfully', payment });
+    res.json({ message: 'Payment verified successfully.', payment });
   } catch (err) {
     next(err);
   }
 });
 
 // ─── PATCH /api/payments/:id ──────────────────────────────────────────────────
-// Admin manually marks a payment as paid (e.g. cash payment)
+// Admin: manually mark a payment as PAID (cash) or revert to PENDING
 router.patch('/:id', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) => {
   try {
     const { status } = req.body;
+
+    if (!['PENDING', 'PAID', 'OVERDUE'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status value.' });
+    }
+
     const payment = await prisma.payment.update({
       where: { id: req.params.id },
       data: {
         status,
-        ...(status === 'PAID' && { paidAt: new Date() }),
+        paidAt: status === 'PAID' ? new Date() : null,
       },
     });
-    res.json({ payment });
+
+    res.json({ payment, message: `Payment marked as ${status}.` });
   } catch (err) {
     next(err);
   }
