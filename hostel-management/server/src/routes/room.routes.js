@@ -84,16 +84,31 @@ router.post('/allocate', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, nex
       });
     }
 
-    const [allocation] = await prisma.$transaction([
-      prisma.roomAllocation.create({ data: { studentId, roomId } }),
-      prisma.room.update({
+    const existingAllocation = await prisma.roomAllocation.findUnique({ where: { studentId } });
+
+    const allocation = await prisma.$transaction(async (tx) => {
+      const savedAllocation = existingAllocation
+        ? await tx.roomAllocation.update({
+            where: { studentId },
+            data: {
+              roomId,
+              isActive: true,
+              allocatedAt: new Date(),
+              vacatedAt: null,
+            },
+          })
+        : await tx.roomAllocation.create({ data: { studentId, roomId } });
+
+      await tx.room.update({
         where: { id: roomId },
         data: {
           occupiedCount: { increment: 1 },
           status: room.occupiedCount + 1 >= room.capacity ? 'FULL' : 'OCCUPIED',
         },
-      }),
-    ]);
+      });
+
+      return savedAllocation;
+    });
 
     res.status(201).json({ message: 'Room allocated successfully', allocation });
   } catch (err) {
@@ -104,8 +119,8 @@ router.post('/allocate', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, nex
 // DELETE /api/rooms/deallocate/:studentId
 router.delete('/deallocate/:studentId', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) => {
   try {
-    const allocation = await prisma.roomAllocation.findUnique({
-      where: { studentId: req.params.studentId },
+    const allocation = await prisma.roomAllocation.findFirst({
+      where: { studentId: req.params.studentId, isActive: true },
       include: { room: true },
     });
     if (!allocation) return res.status(404).json({ error: 'No active allocation found' });

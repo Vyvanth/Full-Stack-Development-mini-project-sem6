@@ -6,6 +6,51 @@ const { authenticate, authorizeRoles } = require('../middleware/auth.middleware'
 const router = express.Router();
 router.use(authenticate);
 
+const ACADEMIC_YEAR_PATTERN = /^\d{4}-\d{2}$/;
+
+function normalizeFeePayload({ title, amount, dueDate, academicYear }) {
+  const trimmedTitle = title?.trim();
+  const trimmedAcademicYear = academicYear?.trim();
+  const parsedAmount = Number(amount);
+  const parsedDueDate = new Date(dueDate);
+
+  if (!trimmedTitle || !trimmedAcademicYear || !dueDate || Number.isNaN(parsedAmount)) {
+    return { error: 'All fields are required.' };
+  }
+
+  if (trimmedTitle.length < 3 || trimmedTitle.length > 80) {
+    return { error: 'Fee title must be between 3 and 80 characters.' };
+  }
+
+  if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+    return { error: 'Amount must be greater than 0.' };
+  }
+
+  if (Number.isNaN(parsedDueDate.getTime())) {
+    return { error: 'Please provide a valid due date.' };
+  }
+
+  parsedDueDate.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (parsedDueDate < today) {
+    return { error: 'Due date cannot be in the past.' };
+  }
+
+  if (!ACADEMIC_YEAR_PATTERN.test(trimmedAcademicYear)) {
+    return { error: 'Academic year must be in YYYY-YY format.' };
+  }
+
+  return {
+    data: {
+      title: trimmedTitle,
+      amount: parsedAmount,
+      dueDate: parsedDueDate,
+      academicYear: trimmedAcademicYear,
+    },
+  };
+}
+
 const getRazorpay = () => {
   if (!process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID === 'your_razorpay_key_id') {
     throw new Error('Razorpay credentials not configured');
@@ -53,18 +98,11 @@ router.get('/fees', async (req, res, next) => {
 router.post('/fees', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) => {
   try {
     const { title, amount, dueDate, academicYear } = req.body;
-
-    if (!title || !amount || !dueDate || !academicYear) {
-      return res.status(400).json({ error: 'All fields are required.' });
-    }
+    const { error, data } = normalizeFeePayload({ title, amount, dueDate, academicYear });
+    if (error) return res.status(400).json({ error });
 
     const fee = await prisma.fee.create({
-      data: {
-        title,
-        amount: Number(amount),
-        dueDate: new Date(dueDate),
-        academicYear,
-      },
+      data,
     });
 
     const students = await prisma.student.findMany({ select: { id: true } });
@@ -74,7 +112,7 @@ router.post('/fees', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) =
         data: students.map((s) => ({
           studentId: s.id,
           feeId: fee.id,
-          amount: Number(amount),
+          amount: data.amount,
           status: 'PENDING',
         })),
         skipDuplicates: true,
@@ -96,22 +134,27 @@ router.post('/fees', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) =
 router.patch('/fees/:id', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) => {
   try {
     const { title, amount, dueDate, academicYear } = req.body;
+    const existingFee = await prisma.fee.findUnique({ where: { id: req.params.id } });
+    if (!existingFee) return res.status(404).json({ error: 'Fee not found.' });
+
+    const { error, data } = normalizeFeePayload({
+      title: title ?? existingFee.title,
+      amount: amount ?? existingFee.amount,
+      dueDate: dueDate ?? existingFee.dueDate,
+      academicYear: academicYear ?? existingFee.academicYear,
+    });
+    if (error) return res.status(400).json({ error });
 
     const fee = await prisma.fee.update({
       where: { id: req.params.id },
-      data: {
-        ...(title && { title }),
-        ...(amount && { amount: Number(amount) }),
-        ...(dueDate && { dueDate: new Date(dueDate) }),
-        ...(academicYear && { academicYear }),
-      },
+      data,
     });
 
     // If amount changed, update all PENDING payments for this fee
-    if (amount) {
+    if (data.amount !== existingFee.amount) {
       await prisma.payment.updateMany({
         where: { feeId: req.params.id, status: 'PENDING' },
-        data: { amount: Number(amount) },
+        data: { amount: data.amount },
       });
     }
 
@@ -136,6 +179,7 @@ router.delete('/fees/:id', authorizeRoles('ADMIN'), async (req, res, next) => {
 router.post('/create-order', async (req, res, next) => {
   try {
     const { paymentId } = req.body;
+    if (!paymentId) return res.status(400).json({ error: 'Payment ID is required.' });
 
     const payment = await prisma.payment.findUnique({
       where: { id: paymentId },
@@ -143,6 +187,9 @@ router.post('/create-order', async (req, res, next) => {
     });
 
     if (!payment) return res.status(404).json({ error: 'Payment record not found.' });
+    if (req.user.role === 'STUDENT' && payment.studentId !== req.user.student?.id) {
+      return res.status(403).json({ error: 'You can only create orders for your own payments.' });
+    }
     if (payment.status === 'PAID') return res.status(400).json({ error: 'This fee is already paid.' });
 
     const razorpay = getRazorpay();
@@ -168,6 +215,21 @@ router.post('/verify', async (req, res, next) => {
   try {
     const crypto = require('crypto');
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, paymentId } = req.body;
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !paymentId) {
+      return res.status(400).json({ error: 'Missing payment verification details.' });
+    }
+
+    const existingPayment = await prisma.payment.findUnique({ where: { id: paymentId } });
+    if (!existingPayment) return res.status(404).json({ error: 'Payment record not found.' });
+    if (req.user.role === 'STUDENT' && existingPayment.studentId !== req.user.student?.id) {
+      return res.status(403).json({ error: 'You can only verify your own payments.' });
+    }
+    if (existingPayment.razorpayOrderId !== razorpay_order_id) {
+      return res.status(400).json({ error: 'Order ID does not match the initiated payment.' });
+    }
+    if (existingPayment.status === 'PAID') {
+      return res.status(400).json({ error: 'This payment is already marked as paid.' });
+    }
 
     const body = razorpay_order_id + '|' + razorpay_payment_id;
     const expectedSig = crypto
@@ -181,7 +243,12 @@ router.post('/verify', async (req, res, next) => {
 
     const payment = await prisma.payment.update({
       where: { id: paymentId },
-      data: { status: 'PAID', razorpayPaymentId: razorpay_payment_id, paidAt: new Date() },
+      data: {
+        status: 'PAID',
+        razorpayOrderId: razorpay_order_id,
+        razorpayPaymentId: razorpay_payment_id,
+        paidAt: new Date(),
+      },
     });
 
     res.json({ message: 'Payment verified successfully.', payment });
