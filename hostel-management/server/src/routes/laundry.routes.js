@@ -25,15 +25,47 @@ router.post('/', async (req, res, next) => {
   try {
     if (req.user.role !== 'STUDENT') return res.status(403).json({ error: 'Only students can request laundry' });
     const { clothesCount, laundryType, pickupDate, returnDate } = req.body;
-    const amount = laundryType === 'EXPRESS' ? clothesCount * 30 : clothesCount * 15;
+    const parsedClothesCount = Number(clothesCount);
+    const parsedPickupDate = new Date(pickupDate);
+    const parsedReturnDate = new Date(returnDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
+    if (!Number.isInteger(parsedClothesCount) || parsedClothesCount <= 0) {
+      return res.status(400).json({ error: 'Number of clothes must be a whole number greater than 0' });
+    }
+
+    if (parsedClothesCount > 100) {
+      return res.status(400).json({ error: 'Number of clothes cannot exceed 100 in a single request' });
+    }
+
+    if (!['REGULAR', 'EXPRESS'].includes(laundryType)) {
+      return res.status(400).json({ error: 'Invalid laundry type selected' });
+    }
+
+    if (Number.isNaN(parsedPickupDate.getTime()) || Number.isNaN(parsedReturnDate.getTime())) {
+      return res.status(400).json({ error: 'Pickup date and return date must be valid dates' });
+    }
+
+    parsedPickupDate.setHours(0, 0, 0, 0);
+    parsedReturnDate.setHours(0, 0, 0, 0);
+
+    if (parsedPickupDate < today) {
+      return res.status(400).json({ error: 'Pickup date cannot be in the past' });
+    }
+
+    if (parsedReturnDate < parsedPickupDate) {
+      return res.status(400).json({ error: 'Return date cannot be earlier than pickup date' });
+    }
+
+    const amount = laundryType === 'EXPRESS' ? parsedClothesCount * 30 : parsedClothesCount * 15;
     const request = await prisma.laundryRequest.create({
       data: {
         studentId: req.user.student.id,
-        clothesCount: Number(clothesCount),
+        clothesCount: parsedClothesCount,
         laundryType,
-        pickupDate: new Date(pickupDate),
-        returnDate: new Date(returnDate),
+        pickupDate: parsedPickupDate,
+        returnDate: parsedReturnDate,
         amount,
       },
     });
