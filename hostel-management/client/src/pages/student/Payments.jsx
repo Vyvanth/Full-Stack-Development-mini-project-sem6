@@ -148,11 +148,11 @@ export default function Payments() {
                   <td className="px-4 py-3 font-medium text-slate-800">{p.fee?.title}</td>
                   <td className="px-4 py-3 text-slate-700 font-semibold">₹{p.amount.toLocaleString()}</td>
                   <td className="px-4 py-3 text-slate-500">
-                    {p.fee?.dueDate ? new Date(p.fee.dueDate).toLocaleDateString('en-IN') : 'â€”'}
+                    {p.fee?.dueDate ? new Date(p.fee.dueDate).toLocaleDateString('en-IN') : '—'}
                   </td>
                   <td className="px-4 py-3">{statusBadge(p.status)}</td>
                   <td className="px-4 py-3 text-slate-500">
-                    {p.paidAt ? new Date(p.paidAt).toLocaleDateString('en-IN') : 'â€”'}
+                    {p.paidAt ? new Date(p.paidAt).toLocaleDateString('en-IN') : '—'}
                   </td>
                   <td className="px-4 py-3">
                     {p.status === 'PENDING' || p.status === 'OVERDUE' ? (
@@ -164,7 +164,7 @@ export default function Payments() {
                         {payingId === p.id ? 'Processing...' : 'Pay Now'}
                       </button>
                     ) : (
-                      <span className="text-xs text-slate-400">â€”</span>
+                      <span className="text-xs text-slate-400">—</span>
                     )}
                   </td>
                 </tr>
