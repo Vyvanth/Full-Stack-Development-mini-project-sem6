@@ -25,7 +25,7 @@ export default function Laundry() {
             <div><label className="label">Number of Clothes</label><input type="number" required min={1} className="input" value={form.clothesCount} onChange={e => setForm({ ...form, clothesCount: e.target.value })} /></div>
             <div><label className="label">Laundry Type</label>
               <select className="input" value={form.laundryType} onChange={e => setForm({ ...form, laundryType: e.target.value })}>
-                <option value="REGULAR">Regular (â‚¹15/item)</option><option value="EXPRESS">Express (â‚¹30/item)</option>
+                <option value="REGULAR">Regular ({'\u20B9'}15/item)</option><option value="EXPRESS">Express ({'\u20B9'}30/item)</option>
               </select>
             </div>
             <div><label className="label">Pickup Date</label><input type="date" required className="input" value={form.pickupDate} onChange={e => setForm({ ...form, pickupDate: e.target.value })} /></div>
@@ -44,7 +44,7 @@ export default function Laundry() {
                   <td className="px-4 py-3">{r.laundryType}</td>
                   <td className="px-4 py-3 text-slate-500">{new Date(r.pickupDate).toLocaleDateString()}</td>
                   <td className="px-4 py-3 text-slate-500">{new Date(r.returnDate).toLocaleDateString()}</td>
-                  <td className="px-4 py-3">â‚¹{r.amount}</td>
+                  <td className="px-4 py-3">{'\u20B9'}{r.amount}</td>
                   <td className="px-4 py-3"><span className={`badge-${r.status === 'DELIVERED' ? 'approved' : 'pending'}`}>{r.status}</span></td>
                 </tr>
               ))}</tbody>

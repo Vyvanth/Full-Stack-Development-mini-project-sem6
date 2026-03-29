@@ -25,7 +25,7 @@ export default function LaundryManagement() {
                 <td className="px-4 py-3">{r.laundryType}</td>
                 <td className="px-4 py-3 text-slate-500">{new Date(r.pickupDate).toLocaleDateString()}</td>
                 <td className="px-4 py-3 text-slate-500">{new Date(r.returnDate).toLocaleDateString()}</td>
-                <td className="px-4 py-3">â‚¹{r.amount}</td>
+                <td className="px-4 py-3">{'\u20B9'}{r.amount}</td>
                 <td className="px-4 py-3">
                   <input type="checkbox" checked={r.isPaid} onChange={e => update(r.id, { isPaid: e.target.checked })} className="rounded" />
                 </td>

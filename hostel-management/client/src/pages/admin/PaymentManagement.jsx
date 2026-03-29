@@ -96,7 +96,7 @@ export default function PaymentManagement() {
 
   // â”€â”€ Mark payment as paid (cash) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const markPaid = async (payment) => {
-    if (!window.confirm(`Mark â‚¹${payment.amount} payment for ${payment.student?.fullName} as paid (cash)?`)) return;
+    if (!window.confirm(`Mark ₹${payment.amount} payment for ${payment.student?.fullName} as paid (cash)?`)) return;
     try {
       await api.patch(`/payments/${payment.id}`, { status: 'PAID' });
       toast.success('Payment marked as received!');
@@ -131,8 +131,8 @@ export default function PaymentManagement() {
       {/* â”€â”€ Stats â”€â”€ */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'Total Collected', value: `â‚¹${totalRevenue.toLocaleString()}`, color: 'green' },
-          { label: 'Total Pending', value: `â‚¹${totalPending.toLocaleString()}`, color: 'yellow' },
+        { label: 'Total Collected', value: `₹${totalRevenue.toLocaleString()}`, color: 'green' },
+        { label: 'Total Pending', value: `₹${totalPending.toLocaleString()}`, color: 'yellow' },
           { label: 'Paid Payments', value: paidCount, color: 'blue' },
           { label: 'Pending Payments', value: pendingCount, color: 'red' },
         ].map(({ label, value, color }) => (
@@ -194,7 +194,7 @@ export default function PaymentManagement() {
                       <td className="px-4 py-3 font-medium">{p.student?.fullName}</td>
                       <td className="px-4 py-3 text-slate-400 text-xs font-mono">{p.student?.rollNumber}</td>
                       <td className="px-4 py-3">{p.fee?.title}</td>
-                      <td className="px-4 py-3 font-semibold">â‚¹{p.amount.toLocaleString()}</td>
+                  <td className="px-4 py-3 font-semibold">₹{p.amount.toLocaleString()}</td>
                       <td className="px-4 py-3">{statusBadge(p.status)}</td>
                       <td className="px-4 py-3 text-slate-500">{p.paidAt ? new Date(p.paidAt).toLocaleDateString('en-IN') : 'â€”'}</td>
                       <td className="px-4 py-3">
@@ -235,7 +235,7 @@ export default function PaymentManagement() {
                   value={feeForm.title} onChange={e => setFeeForm({ ...feeForm, title: e.target.value })} />
               </div>
               <div>
-                <label className="label">Amount (â‚¹)</label>
+                    <label className="label">Amount (₹)</label>
                 <input type="number" required min="1" className="input"
                   value={feeForm.amount} onChange={e => setFeeForm({ ...feeForm, amount: e.target.value })} />
               </div>
@@ -287,7 +287,7 @@ export default function PaymentManagement() {
                   {fees.map(f => (
                     <tr key={f.id} className="border-t border-slate-50 hover:bg-slate-50">
                       <td className="px-4 py-3 font-medium">{f.title}</td>
-                      <td className="px-4 py-3 font-semibold text-slate-700">â‚¹{f.amount.toLocaleString()}</td>
+                  <td className="px-4 py-3 font-semibold text-slate-700">₹{f.amount.toLocaleString()}</td>
                       <td className="px-4 py-3 text-slate-500">{new Date(f.dueDate).toLocaleDateString('en-IN')}</td>
                       <td className="px-4 py-3 text-slate-500">{f.academicYear}</td>
                       <td className="px-4 py-3">
