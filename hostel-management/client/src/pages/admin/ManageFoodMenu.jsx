@@ -98,7 +98,7 @@ export default function ManageFoodMenu() {
             <div><label className="label">Date</label><input type="date" required className="input" value={form.date} onChange={handleDateChange} /></div>
             <div><label className="label">Day</label><input className="input bg-slate-50" readOnly value={form.dayOfWeek} /></div>
             {[['Breakfast', 'breakfast'], ['Lunch', 'lunch'], ['Snacks', 'snacks'], ['Dinner', 'dinner']].map(([l, k]) => (
-              <div key={k}><label className="label">{l} <span className="text-slate-400 font-normal">(comma separated)</span></label>
+              <div key={k}><label className="label">{l} <span className="text-slate-400 font-normal"></span></label>
                 <input className="input" placeholder="Item 1, Item 2..." value={form[k]} onChange={e => setForm({ ...form, [k]: e.target.value })} /></div>
             ))}
             <div className="flex items-center gap-2">
