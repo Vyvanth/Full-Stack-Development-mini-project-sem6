@@ -1,8 +1,8 @@
-// src/pages/public/Register.jsx
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
+import BrandMark from '../../components/BrandMark';
 
 const amritaBranches = [
   'Aerospace Engineering',
@@ -40,7 +40,6 @@ const amritaBranches = [
   'Ph.D',
 ];
 
-// ── Validation rules ──────────────────────────────────────────────────────────
 const validate = (form) => {
   const errors = {};
 
@@ -55,10 +54,9 @@ const validate = (form) => {
     errors.email = 'Enter a valid email address.';
   }
 
-  // 10 digits, must start with 6, 7, 8 or 9
   const phoneRegex = /^[6-9]\d{9}$/;
   if (!phoneRegex.test(form.phone)) {
-    errors.phone = 'Enter a valid 10-digit Indian mobile number (starts with 6–9).';
+    errors.phone = 'Enter a valid 10-digit Indian mobile number (starts with 6-9).';
   }
 
   if (!form.rollNumber.trim() || form.rollNumber.trim().length < 3) {
@@ -104,14 +102,11 @@ export default function Register() {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Phone: only allow digits, max 10
     if (name === 'phone') {
       if (!/^\d*$/.test(value) || value.length > 10) return;
     }
 
     setForm({ ...form, [name]: value });
-
-    // Clear field error on change
     if (errors[name]) setErrors({ ...errors, [name]: '' });
     setGlobalError('');
   };
@@ -120,7 +115,6 @@ export default function Register() {
     e.preventDefault();
     setGlobalError('');
 
-    // Run all validations
     const fieldErrors = validate(form);
     if (Object.keys(fieldErrors).length > 0) {
       setErrors(fieldErrors);
@@ -135,11 +129,7 @@ export default function Register() {
       toast.success('Registration successful!');
       navigate('/student');
     } catch (err) {
-      const message =
-        err?.response?.data?.error ||
-        err?.response?.data?.message ||
-        err?.message ||
-        'Registration failed. Please try again.';
+      const message = err?.response?.data?.error || err?.response?.data?.message || err?.message || 'Registration failed. Please try again.';
       setGlobalError(message);
       toast.error(message);
     } finally {
@@ -147,91 +137,66 @@ export default function Register() {
     }
   };
 
-  // Helper: input class with error highlight
-  const inputClass = (field) =>
-    `input ${errors[field] ? 'border-red-400 focus:ring-red-300' : ''}`;
+  const inputClass = (field) => `input ${errors[field] ? 'border-red-400 focus:ring-red-300' : ''}`;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-8">
       <div className="w-full max-w-lg">
-
-        {/* Back to home */}
         <div className="mb-6">
           <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-700 transition-colors">
-            ← Back to Home
+            {'\u2190'} Back to Home
           </Link>
         </div>
 
         <div className="text-center mb-8">
-          <Link to="/" className="text-2xl font-bold text-primary-700">🏨 HostelMS</Link>
+          <Link to="/" className="inline-flex items-center gap-3 text-2xl font-bold text-primary-700"><BrandMark />HostelMS</Link>
           <h2 className="mt-4 text-xl font-semibold text-slate-800">Create your account</h2>
-          <p className="mt-1 text-sm text-slate-500">
-            Already registered?{' '}
-            <Link to="/login" className="text-primary-600 font-medium hover:underline">Sign in</Link>
-          </p>
+          <p className="mt-1 text-sm text-slate-500">Already registered? <Link to="/login" className="text-primary-600 font-medium hover:underline">Sign in</Link></p>
         </div>
 
         <div className="card p-8">
-
-          {/* Global error */}
           {globalError && (
             <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-5 text-sm">
-              <span className="mt-0.5 flex-shrink-0">⚠️</span>
+              <span className="mt-0.5 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-red-100 text-[11px] font-bold text-red-700">!</span>
               <span>{globalError}</span>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div className="grid grid-cols-2 gap-4">
-
-              {/* Full Name */}
               <div className="col-span-2">
                 <label className="label">Full Name</label>
-                <input name="fullName" required className={inputClass('fullName')}
-                  placeholder="Your full name" value={form.fullName} onChange={handleChange} />
+                <input name="fullName" required className={inputClass('fullName')} placeholder="Your full name" value={form.fullName} onChange={handleChange} />
                 {errors.fullName && <p className="text-xs text-red-500 mt-1">{errors.fullName}</p>}
               </div>
 
-              {/* Email */}
               <div className="col-span-2">
                 <label className="label">Email</label>
-                <input name="email" type="email" required className={inputClass('email')}
-                  placeholder="you@example.com" value={form.email} onChange={handleChange} />
+                <input name="email" type="email" required className={inputClass('email')} placeholder="you@example.com" value={form.email} onChange={handleChange} />
                 {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
               </div>
 
-              {/* Phone */}
               <div>
                 <label className="label">Phone</label>
-                <input name="phone" required className={inputClass('phone')}
-                  placeholder="10-digit mobile number"
-                  value={form.phone} onChange={handleChange}
-                  maxLength={10} inputMode="numeric" />
-                {errors.phone
-                  ? <p className="text-xs text-red-500 mt-1">{errors.phone}</p>
-                  : <p className="text-xs text-slate-400 mt-1">Must start with 6, 7, 8 or 9</p>}
+                <input name="phone" required className={inputClass('phone')} placeholder="10-digit mobile number" value={form.phone} onChange={handleChange} maxLength={10} inputMode="numeric" />
+                {errors.phone ? <p className="text-xs text-red-500 mt-1">{errors.phone}</p> : <p className="text-xs text-slate-400 mt-1">Must start with 6, 7, 8 or 9</p>}
               </div>
 
-              {/* Roll Number */}
               <div>
                 <label className="label">Roll Number</label>
-                <input name="rollNumber" required className={inputClass('rollNumber')}
-                  value={form.rollNumber} onChange={handleChange} />
+                <input name="rollNumber" required className={inputClass('rollNumber')} value={form.rollNumber} onChange={handleChange} />
                 {errors.rollNumber && <p className="text-xs text-red-500 mt-1">{errors.rollNumber}</p>}
               </div>
 
-              {/* Course */}
               <div>
                 <label className="label">Course</label>
-                <input name="course" required className={inputClass('course')}
-                  value={form.course} onChange={handleChange} />
+                <input name="course" required className={inputClass('course')} value={form.course} onChange={handleChange} />
                 {errors.course && <p className="text-xs text-red-500 mt-1">{errors.course}</p>}
               </div>
 
               <div>
                 <label className="label">Gender</label>
-                <select name="gender" required className={inputClass('gender')}
-                  value={form.gender} onChange={handleChange}>
+                <select name="gender" required className={inputClass('gender')} value={form.gender} onChange={handleChange}>
                   <option value="" disabled>Select gender</option>
                   <option value="MALE">Male</option>
                   <option value="FEMALE">Female</option>
@@ -239,46 +204,35 @@ export default function Register() {
                 {errors.gender && <p className="text-xs text-red-500 mt-1">{errors.gender}</p>}
               </div>
 
-              {/* Branch dropdown */}
               <div className="col-span-2">
                 <label className="label">Branch</label>
-                <select name="branch" required className={inputClass('branch')}
-                  value={form.branch} onChange={handleChange}>
+                <select name="branch" required className={inputClass('branch')} value={form.branch} onChange={handleChange}>
                   <option value="" disabled>Select your branch</option>
-                  {amritaBranches.map((b) => (
-                    <option key={b} value={b}>{b}</option>
+                  {amritaBranches.map((branch) => (
+                    <option key={branch} value={branch}>{branch}</option>
                   ))}
                 </select>
                 {errors.branch && <p className="text-xs text-red-500 mt-1">{errors.branch}</p>}
               </div>
 
-              {/* Password */}
               <div>
                 <label className="label">Password</label>
-                <input name="password" type="password" required className={inputClass('password')}
-                  placeholder="Min. 6 characters" value={form.password} onChange={handleChange} />
-                {errors.password
-                  ? <p className="text-xs text-red-500 mt-1">{errors.password}</p>
-                  : <p className="text-xs text-slate-400 mt-1">Letters + numbers required</p>}
+                <input name="password" type="password" required className={inputClass('password')} placeholder="Min. 6 characters" value={form.password} onChange={handleChange} />
+                {errors.password ? <p className="text-xs text-red-500 mt-1">{errors.password}</p> : <p className="text-xs text-slate-400 mt-1">Letters + numbers required</p>}
               </div>
 
-              {/* Confirm Password */}
               <div>
                 <label className="label">Confirm Password</label>
-                <input name="confirmPassword" type="password" required className={inputClass('confirmPassword')}
-                  placeholder="Repeat password" value={form.confirmPassword} onChange={handleChange} />
+                <input name="confirmPassword" type="password" required className={inputClass('confirmPassword')} placeholder="Repeat password" value={form.confirmPassword} onChange={handleChange} />
                 {errors.confirmPassword && <p className="text-xs text-red-500 mt-1">{errors.confirmPassword}</p>}
               </div>
-
             </div>
 
-            <button type="submit" disabled={loading} className="btn-primary w-full mt-2">
-              {loading ? 'Creating account...' : 'Create account'}
-            </button>
+            <button type="submit" disabled={loading} className="btn-primary w-full mt-2">{loading ? 'Creating account...' : 'Create account'}</button>
           </form>
         </div>
-
       </div>
     </div>
   );
 }
+

@@ -66,7 +66,7 @@ export default function Payments() {
               razorpay_signature: response.razorpay_signature,
               paymentId: payment.id,
             });
-            toast.success('Payment successful! 🎉');
+            toast.success('Payment successful.');
             fetchPayments(); // refresh list
           } catch {
             toast.error('Payment verification failed. Contact admin.');
@@ -79,7 +79,7 @@ export default function Payments() {
         theme: { color: '#2563eb' },
         modal: {
           ondismiss: () => {
-            toast('Payment cancelled.', { icon: 'ℹ️' });
+            toast('Payment cancelled.');
             setPayingId(null);
           },
         },
@@ -181,3 +181,4 @@ export default function Payments() {
     </div>
   );
 }
+
