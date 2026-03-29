@@ -26,13 +26,50 @@ router.post('/out', async (req, res, next) => {
   try {
     if (req.user.role !== 'STUDENT') return res.status(403).json({ error: 'Only students can apply for out pass' });
     const { date, timeOut, expectedReturn, reason } = req.body;
+    const trimmedReason = reason?.trim();
+    const passDate = new Date(date);
+    const timeOutDate = new Date(timeOut);
+    const expectedReturnDate = new Date(expectedReturn);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (!date || !timeOut || !expectedReturn || !trimmedReason) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    if (Number.isNaN(passDate.getTime()) || Number.isNaN(timeOutDate.getTime()) || Number.isNaN(expectedReturnDate.getTime())) {
+      return res.status(400).json({ error: 'Please provide valid date/time values' });
+    }
+
+    passDate.setHours(0, 0, 0, 0);
+
+    if (passDate < today) {
+      return res.status(400).json({ error: 'Out pass date cannot be in the past' });
+    }
+
+    if (!timeOut.startsWith(date)) {
+      return res.status(400).json({ error: 'Time out must be on the selected date' });
+    }
+
+    if (expectedReturnDate <= timeOutDate) {
+      return res.status(400).json({ error: 'Expected return must be later than time out' });
+    }
+
+    if (trimmedReason.length < 4) {
+      return res.status(400).json({ error: 'Reason must be at least 4 characters long' });
+    }
+
+    if (trimmedReason.length > 200) {
+      return res.status(400).json({ error: 'Reason cannot exceed 200 characters' });
+    }
+
     const pass = await prisma.outPass.create({
       data: {
         studentId: req.user.student.id,
-        date: new Date(date),
-        timeOut: new Date(timeOut),
-        expectedReturn: new Date(expectedReturn),
-        reason,
+        date: passDate,
+        timeOut: timeOutDate,
+        expectedReturn: expectedReturnDate,
+        reason: trimmedReason,
       },
     });
     res.status(201).json({ message: 'Out pass applied', pass });
@@ -73,15 +110,48 @@ router.get('/home', async (req, res, next) => {
 router.post('/home', async (req, res, next) => {
   try {
     if (req.user.role !== 'STUDENT') return res.status(403).json({ error: 'Only students can apply for home pass' });
-    const { fromDate, toDate, destination, guardianContact, reason } = req.body;
+    const { fromDate, toDate, reason } = req.body;
+    const trimmedReason = reason?.trim();
+    const parsedFromDate = new Date(fromDate);
+    const parsedToDate = new Date(toDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (!fromDate || !toDate || !trimmedReason) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    if (Number.isNaN(parsedFromDate.getTime()) || Number.isNaN(parsedToDate.getTime())) {
+      return res.status(400).json({ error: 'Please provide valid from/to date and time values' });
+    }
+
+    const fromDay = new Date(parsedFromDate);
+    fromDay.setHours(0, 0, 0, 0);
+
+    if (fromDay < today) {
+      return res.status(400).json({ error: 'From date cannot be in the past' });
+    }
+
+    if (parsedToDate <= parsedFromDate) {
+      return res.status(400).json({ error: 'To date and time must be later than from date and time' });
+    }
+
+    if (trimmedReason.length < 4) {
+      return res.status(400).json({ error: 'Reason must be at least 4 characters long' });
+    }
+
+    if (trimmedReason.length > 200) {
+      return res.status(400).json({ error: 'Reason cannot exceed 200 characters' });
+    }
+
     const pass = await prisma.homePass.create({
       data: {
         studentId: req.user.student.id,
-        fromDate: new Date(fromDate),
-        toDate: new Date(toDate),
-        destination,
-        guardianContact,
-        reason,
+        fromDate: parsedFromDate,
+        toDate: parsedToDate,
+        destination: 'N/A',
+        guardianContact: 'N/A',
+        reason: trimmedReason,
       },
     });
     res.status(201).json({ message: 'Home pass applied', pass });

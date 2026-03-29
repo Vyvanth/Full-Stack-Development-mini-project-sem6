@@ -29,7 +29,7 @@ export default function PassApproval() {
         <thead className="bg-slate-50"><tr>
           {(type === 'out'
             ? ['Student', 'Date', 'Time Out', 'Return', 'Reason', 'Status', 'Remarks', 'Actions']
-            : ['Student', 'From', 'To', 'Destination', 'Guardian', 'Status', 'Remarks', 'Actions']
+            : ['Student', 'From Date', 'From Time', 'To Date', 'To Time', 'Status', 'Remarks', 'Actions']
           ).map(h => <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">{h}</th>)}
         </tr></thead>
         <tbody>
@@ -43,9 +43,9 @@ export default function PassApproval() {
                   <td className="px-4 py-3">{new Date(p.expectedReturn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
                 </> : <>
                   <td className="px-4 py-3">{new Date(p.fromDate).toLocaleDateString()}</td>
+                  <td className="px-4 py-3">{new Date(p.fromDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
                   <td className="px-4 py-3">{new Date(p.toDate).toLocaleDateString()}</td>
-                  <td className="px-4 py-3">{p.destination}</td>
-                  <td className="px-4 py-3">{p.guardianContact}</td>
+                  <td className="px-4 py-3">{new Date(p.toDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
                 </>}
                 {type === 'out' && <td className="px-4 py-3 text-slate-500 max-w-[140px] truncate">{p.reason}</td>}
                 <td className="px-4 py-3"><span className={`badge-${p.status.toLowerCase()}`}>{p.status}</span></td>
