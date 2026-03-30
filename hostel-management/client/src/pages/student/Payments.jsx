@@ -176,7 +176,7 @@ export default function Payments() {
 
       {/* Note about Razorpay test mode */}
       <p className="text-xs text-slate-400 mt-4 text-center">
-        Payments are processed securely via Razorpay. For test mode, use card: 4111 1111 1111 1111.
+        Payments are processed securely via Razorpay. For test mode, prefer UPI with `success@razorpay` for success and `failure@razorpay` for failure.
       </p>
     </div>
   );

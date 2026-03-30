@@ -55,6 +55,9 @@ const getRazorpay = () => {
   if (!process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID === 'your_razorpay_key_id') {
     throw new Error('Razorpay credentials not configured');
   }
+  if (!process.env.RAZORPAY_KEY_SECRET || process.env.RAZORPAY_KEY_SECRET === 'your_razorpay_key_secret') {
+    throw new Error('Razorpay secret not configured');
+  }
   const Razorpay = require('razorpay');
   return new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
@@ -193,19 +196,25 @@ router.post('/create-order', async (req, res, next) => {
     if (payment.status === 'PAID') return res.status(400).json({ error: 'This fee is already paid.' });
 
     const razorpay = getRazorpay();
+    const receipt = `pay_${paymentId.replace(/-/g, '').slice(0, 20)}`;
     const order = await razorpay.orders.create({
       amount: payment.amount * 100,
       currency: 'INR',
-      receipt: `receipt_${paymentId}`,
+      receipt,
     });
 
     await prisma.payment.update({
       where: { id: paymentId },
-      data: { razorpayOrderId: order.id },
+      data: { razorpayOrderId: order.id, receipt },
     });
 
     res.json({ order, keyId: process.env.RAZORPAY_KEY_ID });
   } catch (err) {
+    if (err?.statusCode || err?.error?.description) {
+      return res.status(err.statusCode || 400).json({
+        error: err.error?.description || err.message || 'Failed to create Razorpay order.',
+      });
+    }
     next(err);
   }
 });
@@ -253,6 +262,11 @@ router.post('/verify', async (req, res, next) => {
 
     res.json({ message: 'Payment verified successfully.', payment });
   } catch (err) {
+    if (err?.statusCode || err?.error?.description) {
+      return res.status(err.statusCode || 400).json({
+        error: err.error?.description || err.message || 'Failed to verify Razorpay payment.',
+      });
+    }
     next(err);
   }
 });
