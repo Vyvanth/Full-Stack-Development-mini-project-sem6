@@ -36,9 +36,9 @@ export default function Landing() {
       <section className="relative max-w-4xl mx-auto px-8 py-24 text-center">
         
         <h1 className="text-5xl font-bold tracking-tight mb-6 leading-tight">
-          Campus Nest
+          <i>Campus Nest</i>
           <br />
-          <span className="text-primary-400">Made Simple</span>
+          
         </h1>
         <p className="text-lg text-white/60 mb-10 max-w-xl mx-auto">
           A modern, digital system to manage rooms, fees, complaints, passes, and more for students and wardens alike.
