@@ -34,10 +34,7 @@ export default function Landing() {
       </nav>
 
       <section className="relative max-w-4xl mx-auto px-8 py-24 text-center">
-        <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-1.5 mb-8">
-          <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-          <span className="text-xs font-medium text-white/70 tracking-wide">Smart Campus Living</span>
-        </div>
+        
         <h1 className="text-5xl font-bold tracking-tight mb-6 leading-tight">
           Campus Nest
           <br />
