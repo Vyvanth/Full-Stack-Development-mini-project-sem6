@@ -8,6 +8,15 @@ router.use(authenticate);
 
 const ACADEMIC_YEAR_PATTERN = /^\d{4}-\d{2}$/;
 
+function getCurrentAcademicYear() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const startYear = month >= 6 ? year : year - 1;
+  const endYearSuffix = String((startYear + 1) % 100).padStart(2, '0');
+  return `${startYear}-${endYearSuffix}`;
+}
+
 function normalizeFeePayload({ title, amount, dueDate, academicYear }) {
   const trimmedTitle = title?.trim();
   const trimmedAcademicYear = academicYear?.trim();
@@ -39,6 +48,18 @@ function normalizeFeePayload({ title, amount, dueDate, academicYear }) {
 
   if (!ACADEMIC_YEAR_PATTERN.test(trimmedAcademicYear)) {
     return { error: 'Academic year must be in YYYY-YY format.' };
+  }
+
+  const [startYearText, endYearSuffix] = trimmedAcademicYear.split('-');
+  const startYear = Number(startYearText);
+  const expectedEndYearSuffix = String((startYear + 1) % 100).padStart(2, '0');
+  if (endYearSuffix !== expectedEndYearSuffix) {
+    return { error: 'Academic year must be a valid consecutive range like 2025-26.' };
+  }
+
+  const currentAcademicYear = getCurrentAcademicYear();
+  if (trimmedAcademicYear < currentAcademicYear) {
+    return { error: `Academic year cannot be earlier than ${currentAcademicYear}.` };
   }
 
   return {

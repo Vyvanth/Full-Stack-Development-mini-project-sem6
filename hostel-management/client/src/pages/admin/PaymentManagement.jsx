@@ -3,7 +3,18 @@ import { useState, useEffect } from 'react';
 import api from '../../api/client';
 import toast from 'react-hot-toast';
 
-const EMPTY_FEE_FORM = { title: '', amount: '', dueDate: '', academicYear: '2024-25' };
+const getCurrentAcademicYear = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const startYear = month >= 6 ? year : year - 1;
+  const endYearSuffix = String((startYear + 1) % 100).padStart(2, '0');
+  return `${startYear}-${endYearSuffix}`;
+};
+
+const getTodayInputValue = () => new Date().toISOString().split('T')[0];
+
+const EMPTY_FEE_FORM = { title: '', amount: '', dueDate: '', academicYear: getCurrentAcademicYear() };
 
 export default function PaymentManagement() {
   const [payments, setPayments] = useState([]);
@@ -14,6 +25,8 @@ export default function PaymentManagement() {
   const [filterStatus, setFilterStatus] = useState('');
   const [filterFee, setFilterFee] = useState('');
   const [loading, setLoading] = useState(true);
+  const minDueDate = getTodayInputValue();
+  const currentAcademicYear = getCurrentAcademicYear();
 
   const fetchAll = async () => {
     setLoading(true);
@@ -49,6 +62,29 @@ export default function PaymentManagement() {
   // â”€â”€ Create or Update Fee â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleFeeSubmit = async (e) => {
     e.preventDefault();
+    if (feeForm.dueDate && feeForm.dueDate < minDueDate) {
+      toast.error('Due date cannot be in the past.');
+      return;
+    }
+
+    if (!/^\d{4}-\d{2}$/.test(feeForm.academicYear)) {
+      toast.error('Academic year must be in YYYY-YY format.');
+      return;
+    }
+
+    const [startYearText, endYearSuffix] = feeForm.academicYear.split('-');
+    const startYear = Number(startYearText);
+    const expectedEndYearSuffix = String((startYear + 1) % 100).padStart(2, '0');
+    if (endYearSuffix !== expectedEndYearSuffix) {
+      toast.error('Academic year must be a valid consecutive range like 2025-26.');
+      return;
+    }
+
+    if (feeForm.academicYear < currentAcademicYear) {
+      toast.error(`Academic year cannot be earlier than ${currentAcademicYear}.`);
+      return;
+    }
+
     try {
       if (editingFee) {
         // Update fee via PATCH
@@ -241,13 +277,14 @@ export default function PaymentManagement() {
               </div>
               <div>
                 <label className="label">Due Date</label>
-                <input type="date" required className="input"
+                <input type="date" required className="input" min={minDueDate}
                   value={feeForm.dueDate} onChange={e => setFeeForm({ ...feeForm, dueDate: e.target.value })} />
               </div>
               <div>
                 <label className="label">Academic Year</label>
-                <input required className="input"
+                <input required className="input" placeholder={currentAcademicYear}
                   value={feeForm.academicYear} onChange={e => setFeeForm({ ...feeForm, academicYear: e.target.value })} />
+                <p className="mt-1 text-xs text-slate-400">Use current or future academic years only, for example {currentAcademicYear}.</p>
               </div>
               <div className="flex gap-2 pt-1">
                 <button type="submit" className="btn-primary flex-1">
