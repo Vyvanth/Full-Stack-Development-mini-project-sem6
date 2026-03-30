@@ -86,7 +86,6 @@ const getRazorpay = () => {
   });
 };
 
-// ─── GET /api/payments ────────────────────────────────────────────────────────
 router.get('/', async (req, res, next) => {
   try {
     const isAdmin = ['ADMIN', 'WARDEN'].includes(req.user.role);
@@ -107,7 +106,6 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-// ─── GET /api/payments/fees ───────────────────────────────────────────────────
 router.get('/fees', async (req, res, next) => {
   try {
     const fees = await prisma.fee.findMany({ orderBy: { dueDate: 'asc' } });
@@ -117,8 +115,6 @@ router.get('/fees', async (req, res, next) => {
   }
 });
 
-// ─── POST /api/payments/fees ──────────────────────────────────────────────────
-// Create fee + auto-assign PENDING payment to every student
 router.post('/fees', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) => {
   try {
     const { title, amount, dueDate, academicYear } = req.body;
@@ -152,9 +148,6 @@ router.post('/fees', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) =
   }
 });
 
-// ─── PATCH /api/payments/fees/:id ─────────────────────────────────────────────
-// Edit fee title, amount, dueDate, academicYear
-// Also updates the amount on all PENDING payment records for this fee
 router.patch('/fees/:id', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) => {
   try {
     const { title, amount, dueDate, academicYear } = req.body;
@@ -174,7 +167,6 @@ router.patch('/fees/:id', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, ne
       data,
     });
 
-    // If amount changed, update all PENDING payments for this fee
     if (data.amount !== existingFee.amount) {
       await prisma.payment.updateMany({
         where: { feeId: req.params.id, status: 'PENDING' },
@@ -188,7 +180,6 @@ router.patch('/fees/:id', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, ne
   }
 });
 
-// ─── DELETE /api/payments/fees/:id ───────────────────────────────────────────
 router.delete('/fees/:id', authorizeRoles('ADMIN'), async (req, res, next) => {
   try {
     await prisma.payment.deleteMany({ where: { feeId: req.params.id } });
@@ -199,7 +190,6 @@ router.delete('/fees/:id', authorizeRoles('ADMIN'), async (req, res, next) => {
   }
 });
 
-// ─── POST /api/payments/create-order ─────────────────────────────────────────
 router.post('/create-order', async (req, res, next) => {
   try {
     const { paymentId } = req.body;
@@ -240,7 +230,6 @@ router.post('/create-order', async (req, res, next) => {
   }
 });
 
-// ─── POST /api/payments/verify ────────────────────────────────────────────────
 router.post('/verify', async (req, res, next) => {
   try {
     const crypto = require('crypto');
@@ -292,8 +281,6 @@ router.post('/verify', async (req, res, next) => {
   }
 });
 
-// ─── PATCH /api/payments/:id ──────────────────────────────────────────────────
-// Admin: manually mark a payment as PAID (cash) or revert to PENDING
 router.patch('/:id', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) => {
   try {
     const { status } = req.body;

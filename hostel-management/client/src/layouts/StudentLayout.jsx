@@ -1,4 +1,4 @@
-﻿import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import BrandMark from '../components/BrandMark';
@@ -77,4 +77,3 @@ export default function StudentLayout() {
     </div>
   );
 }
-

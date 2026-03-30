@@ -1,4 +1,4 @@
-﻿import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import BrandMark from '../components/BrandMark';
@@ -33,7 +33,7 @@ export default function AdminLayout() {
             <BrandMark compact dark />
             <h1 className="text-lg font-bold text-white tracking-tight">Campus Nest</h1>
           </div>
-          <p className="text-xs text-slate-400 mt-2">Admin Panel · {user?.role}</p>
+          <p className="text-xs text-slate-400 mt-2">Admin Panel � {user?.role}</p>
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
@@ -78,4 +78,3 @@ export default function AdminLayout() {
     </div>
   );
 }
-

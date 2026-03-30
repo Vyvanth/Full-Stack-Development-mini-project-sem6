@@ -19,6 +19,7 @@ export default function ManageFoodMenu() {
   const [menus, setMenus] = useState([]);
   const [form, setForm] = useState({ date: '', dayOfWeek: '', breakfast: '', lunch: '', snacks: '', dinner: '', isVeg: true });
   const [editingId, setEditingId] = useState('');
+  const [errors, setErrors] = useState({});
   const vegBadge = String.fromCodePoint(0x1F957);
   const star = String.fromCodePoint(0x2B50);
   const mealLabels = [
@@ -46,34 +47,36 @@ export default function ManageFoodMenu() {
   };
 
   const validateForm = () => {
-    if (!form.date) return 'Date is required';
+    const nextErrors = {};
+    if (!form.date) nextErrors.date = 'Date is required';
 
     const selectedDate = new Date(form.date);
-    if (Number.isNaN(selectedDate.getTime())) return 'Please choose a valid date';
+    if (Number.isNaN(selectedDate.getTime())) nextErrors.date = 'Please choose a valid date';
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     selectedDate.setHours(0, 0, 0, 0);
 
-    if (selectedDate < today) return 'Date cannot be in the past';
-    if (!form.dayOfWeek || form.dayOfWeek !== DAYS[selectedDate.getDay()]) return 'Day must match the selected date';
+    if (selectedDate < today) nextErrors.date = 'Date cannot be in the past';
+    if (!form.dayOfWeek || form.dayOfWeek !== DAYS[selectedDate.getDay()]) nextErrors.dayOfWeek = 'Day must match the selected date';
 
     for (const [label, key] of [['Breakfast', 'breakfast'], ['Lunch', 'lunch'], ['Snacks', 'snacks'], ['Dinner', 'dinner']]) {
       const items = parseMealItems(form[key]);
-      if (items.length === 0) return `${label} must have at least one item`;
-      if (items.length > MAX_MEAL_ITEMS) return `${label} can have at most ${MAX_MEAL_ITEMS} items`;
-      if (items.some((item) => item.length > MAX_ITEM_LENGTH)) return `${label} items must be ${MAX_ITEM_LENGTH} characters or less`;
-      if (items.some((item) => !MEAL_ITEM_PATTERN.test(item))) return `${label} items must contain real food names, not only symbols`;
+      if (items.length === 0) nextErrors[key] = `${label} must have at least one item`;
+      else if (items.length > MAX_MEAL_ITEMS) nextErrors[key] = `${label} can have at most ${MAX_MEAL_ITEMS} items`;
+      else if (items.some((item) => item.length > MAX_ITEM_LENGTH)) nextErrors[key] = `${label} items must be ${MAX_ITEM_LENGTH} characters or less`;
+      else if (items.some((item) => !MEAL_ITEM_PATTERN.test(item))) nextErrors[key] = `${label} items must contain real food names, not only symbols`;
     }
 
-    return '';
+    return nextErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const validationError = validateForm();
-    if (validationError) {
-      toast.error(validationError);
+    const nextErrors = validateForm();
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      toast.error('Please fix the highlighted menu fields.');
       return;
     }
 
@@ -93,6 +96,7 @@ export default function ManageFoodMenu() {
         toast.success('Menu saved!');
       }
       resetForm();
+      setErrors({});
       fetch();
     }
     catch (err) { toast.error(err.response?.data?.error || 'Failed'); }
@@ -135,11 +139,11 @@ export default function ManageFoodMenu() {
             ) : null}
           </div>
           <form onSubmit={handleSubmit} className="space-y-3">
-            <div><label className="label">Date</label><input type="date" required min={getToday()} className="input" value={form.date} onChange={handleDateChange} /></div>
-            <div><label className="label">Day</label><input className="input bg-slate-50" readOnly value={form.dayOfWeek} /></div>
+            <div><label className="label">Date</label><input type="date" required min={getToday()} className={`input ${errors.date ? 'border-red-300 focus:ring-red-400' : ''}`} value={form.date} onChange={handleDateChange} />{errors.date && <p className="mt-1 text-xs text-red-500">{errors.date}</p>}</div>
+            <div><label className="label">Day</label><input className={`input bg-slate-50 ${errors.dayOfWeek ? 'border-red-300 focus:ring-red-400' : ''}`} readOnly value={form.dayOfWeek} />{errors.dayOfWeek && <p className="mt-1 text-xs text-red-500">{errors.dayOfWeek}</p>}</div>
             {[['Breakfast', 'breakfast'], ['Lunch', 'lunch'], ['Snacks', 'snacks'], ['Dinner', 'dinner']].map(([l, k]) => (
               <div key={k}><label className="label">{l} <span className="text-slate-400 font-normal"></span></label>
-                <input className="input" required maxLength={MAX_MEAL_ITEMS * MAX_ITEM_LENGTH} placeholder="Item 1, Item 2..." value={form[k]} onChange={e => setForm({ ...form, [k]: e.target.value })} /></div>
+                <input className={`input ${errors[k] ? 'border-red-300 focus:ring-red-400' : ''}`} required maxLength={MAX_MEAL_ITEMS * MAX_ITEM_LENGTH} placeholder="Item 1, Item 2..." value={form[k]} onChange={e => { setForm({ ...form, [k]: e.target.value }); if (errors[k]) setErrors({ ...errors, [k]: '' }); }} />{errors[k] ? <p className="mt-1 text-xs text-red-500">{errors[k]}</p> : <p className="mt-1 text-xs text-slate-400">Separate multiple items with commas.</p>}</div>
             ))}
             <div className="flex items-center gap-2">
               <input type="checkbox" id="isVeg" checked={form.isVeg} onChange={e => setForm({ ...form, isVeg: e.target.checked })} className="rounded" />

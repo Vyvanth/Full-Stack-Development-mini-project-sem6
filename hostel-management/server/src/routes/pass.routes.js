@@ -6,7 +6,6 @@ const { authenticate, authorizeRoles } = require('../middleware/auth.middleware'
 const router = express.Router();
 router.use(authenticate);
 
-// ─── OUT PASSES ───────────────────────────────────────────────────────────────
 router.get('/out', async (req, res, next) => {
   try {
     const isAdmin = ['ADMIN', 'WARDEN'].includes(req.user.role);
@@ -113,7 +112,6 @@ router.delete('/out/:id', async (req, res, next) => {
   }
 });
 
-// ─── HOME PASSES ──────────────────────────────────────────────────────────────
 router.get('/home', async (req, res, next) => {
   try {
     const isAdmin = ['ADMIN', 'WARDEN'].includes(req.user.role);

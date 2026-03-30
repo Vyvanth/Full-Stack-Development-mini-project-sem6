@@ -6,7 +6,6 @@ const { authenticate, authorizeRoles } = require('../middleware/auth.middleware'
 const router = express.Router();
 router.use(authenticate);
 
-// GET /api/complaints - Student: own complaints | Admin: all
 router.get('/', async (req, res, next) => {
   try {
     const isAdmin = ['ADMIN', 'WARDEN'].includes(req.user.role);
@@ -34,7 +33,6 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-// POST /api/complaints - Student: create complaint
 router.post('/', async (req, res, next) => {
   try {
     if (req.user.role !== 'STUDENT') return res.status(403).json({ error: 'Only students can file complaints' });
@@ -50,7 +48,6 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-// PATCH /api/complaints/:id - Admin: update status/priority
 router.patch('/:id', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) => {
   try {
     const { status, priority, remarks } = req.body;

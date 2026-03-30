@@ -11,6 +11,8 @@ export default function RoomManagement() {
   const [students, setStudents] = useState([]);
   const [form, setForm] = useState({ roomNumber: '', block: 'A', floor: '', capacity: '3' });
   const [alloc, setAlloc] = useState({ studentId: '', roomId: '' });
+  const [roomErrors, setRoomErrors] = useState({});
+  const [allocErrors, setAllocErrors] = useState({});
 
   const fetchRooms = () => api.get('/rooms').then(({ data }) => setRooms(data.rooms));
   const fetchStudents = () => api.get('/students?limit=100').then(({ data }) => setStudents(data.students));
@@ -28,16 +30,36 @@ export default function RoomManagement() {
 
   const handleCreateRoom = async (e) => {
     e.preventDefault();
-    try { await api.post('/rooms', form); toast.success('Room created!'); setForm({ roomNumber: '', block: 'A', floor: '', capacity: '3' }); fetchRooms(); }
+    const nextErrors = {};
+    if (!form.roomNumber.trim()) nextErrors.roomNumber = 'Room number is required.';
+    if (!/^[AB]\d{3}$/i.test(form.roomNumber.trim())) nextErrors.roomNumber = 'Use a room number like A101 or B205.';
+    if (!form.floor || Number(form.floor) <= 0) nextErrors.floor = 'Floor must be greater than 0.';
+    if (!form.capacity || Number(form.capacity) <= 0) nextErrors.capacity = 'Capacity must be greater than 0.';
+    if (Object.keys(nextErrors).length > 0) {
+      setRoomErrors(nextErrors);
+      toast.error('Please fix the highlighted room fields.');
+      return;
+    }
+
+    try { await api.post('/rooms', form); toast.success('Room created!'); setForm({ roomNumber: '', block: 'A', floor: '', capacity: '3' }); setRoomErrors({}); fetchRooms(); }
     catch (err) { toast.error(err.response?.data?.error || 'Failed'); }
   };
 
   const handleAllocate = async (e) => {
     e.preventDefault();
+    const nextErrors = {};
+    if (!alloc.studentId) nextErrors.studentId = 'Please select a student.';
+    if (!alloc.roomId) nextErrors.roomId = 'Please select a room.';
+    if (Object.keys(nextErrors).length > 0) {
+      setAllocErrors(nextErrors);
+      toast.error('Please fix the highlighted allocation fields.');
+      return;
+    }
     try {
       await api.post('/rooms/allocate', alloc);
       toast.success('Room allocated!');
       setAlloc({ studentId: '', roomId: '' });
+      setAllocErrors({});
       fetchRooms();
       fetchStudents();
       fetchAvailableRooms();
@@ -80,7 +102,7 @@ export default function RoomManagement() {
                   </select>
                 </div>
               ) : (
-                <div key={k}><label className="label">{l}</label><input required className="input" placeholder={p} value={form[k]} onChange={e => setForm({ ...form, [k]: e.target.value })} /></div>
+                <div key={k}><label className="label">{l}</label><input required className={`input ${roomErrors[k] ? 'border-red-300 focus:ring-red-400' : ''}`} placeholder={p} value={form[k]} onChange={e => { setForm({ ...form, [k]: e.target.value }); if (roomErrors[k]) setRoomErrors({ ...roomErrors, [k]: '' }); }} />{roomErrors[k] && <p className="mt-1 text-xs text-red-500">{roomErrors[k]}</p>}</div>
               )
             ))}
             <button type="submit" className="btn-primary w-full">Create Room</button>
@@ -91,19 +113,21 @@ export default function RoomManagement() {
           <form onSubmit={handleAllocate} className="space-y-3">
             <div>
               <label className="label">Student (Unallocated)</label>
-              <select required className="input" value={alloc.studentId} onChange={e => setAlloc({ ...alloc, studentId: e.target.value, roomId: '' })}>
+              <select required className={`input ${allocErrors.studentId ? 'border-red-300 focus:ring-red-400' : ''}`} value={alloc.studentId} onChange={e => { setAlloc({ ...alloc, studentId: e.target.value, roomId: '' }); if (allocErrors.studentId) setAllocErrors({ ...allocErrors, studentId: '' }); }}>
                 <option value="">Select student</option>
                 {unallocatedStudents.map(s => <option key={s.id} value={s.id}>{s.fullName} ({s.rollNumber}) - {s.gender === 'FEMALE' ? 'Female' : 'Male'}</option>)}
               </select>
+              {allocErrors.studentId && <p className="mt-1 text-xs text-red-500">{allocErrors.studentId}</p>}
             </div>
             <div>
               <label className="label">Room {allowedBlock ? `(Block ${allowedBlock})` : ''}</label>
-              <select required className="input" value={alloc.roomId} onChange={e => setAlloc({ ...alloc, roomId: e.target.value })}>
+              <select required className={`input ${allocErrors.roomId ? 'border-red-300 focus:ring-red-400' : ''}`} value={alloc.roomId} onChange={e => { setAlloc({ ...alloc, roomId: e.target.value }); if (allocErrors.roomId) setAllocErrors({ ...allocErrors, roomId: '' }); }}>
                 <option value="">Select room</option>
                 {visibleRooms.map(r => (
                   <option key={r.id} value={r.id}>{r.roomNumber} (Block {r.block}, {r.occupiedCount}/{r.capacity})</option>
                 ))}
               </select>
+              {allocErrors.roomId && <p className="mt-1 text-xs text-red-500">{allocErrors.roomId}</p>}
             </div>
             <button type="submit" className="btn-primary w-full">Assign</button>
           </form>

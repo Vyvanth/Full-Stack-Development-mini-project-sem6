@@ -1,4 +1,4 @@
-﻿// src/App.jsx
+// src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -56,7 +56,6 @@ const GuestRoute = ({ children }) => {
 function AppRoutes() {
   return (
     <Routes>
-      {/* Public */}
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
       <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
@@ -65,7 +64,6 @@ function AppRoutes() {
       <Route path="/terms-of-service" element={<TermsOfService />} />
       <Route path="/support" element={<Support />} />
 
-      {/* Student */}
       <Route path="/student" element={<PrivateRoute roles={['STUDENT']}><StudentLayout /></PrivateRoute>}>
         <Route index element={<StudentDashboard />} />
         <Route path="room" element={<RoomDetails />} />
@@ -78,7 +76,6 @@ function AppRoutes() {
         <Route path="home-pass" element={<HomePass />} />
       </Route>
 
-      {/* Admin / Warden */}
       <Route path="/admin" element={<PrivateRoute roles={['ADMIN', 'WARDEN']}><AdminLayout /></PrivateRoute>}>
         <Route index element={<AdminDashboard />} />
         <Route path="students" element={<ManageStudents />} />
@@ -90,7 +87,7 @@ function AppRoutes() {
         <Route path="passes" element={<PassApproval />} />
       </Route>
 
-      <Route path="/unauthorized" element={<div className="flex items-center justify-center h-screen text-xl font-semibold text-red-500">403 â€” Unauthorized</div>} />
+      <Route path="/unauthorized" element={<div className="flex items-center justify-center h-screen text-xl font-semibold text-red-500">403 — Unauthorized</div>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
@@ -106,4 +103,3 @@ export default function App() {
     </AuthProvider>
   );
 }
-

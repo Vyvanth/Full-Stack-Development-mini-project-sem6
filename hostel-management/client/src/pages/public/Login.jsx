@@ -8,17 +8,44 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: '', password: '' });
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const validate = (values) => {
+    const nextErrors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(values.email.trim())) {
+      nextErrors.email = 'Enter a valid email address.';
+    }
+
+    if (!values.password) {
+      nextErrors.password = 'Password is required.';
+    } else if (values.password.length < 6) {
+      nextErrors.password = 'Password must be at least 6 characters.';
+    }
+
+    return nextErrors;
+  };
 
   const handleChange = (e) => {
     setError('');
     setForm({ ...form, [e.target.name]: e.target.value });
+    if (errors[e.target.name]) {
+      setErrors({ ...errors, [e.target.name]: '' });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    const nextErrors = validate(form);
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      toast.error('Please fix the highlighted fields.');
+      return;
+    }
     setLoading(true);
     try {
       const user = await login(form.email, form.password);
@@ -32,6 +59,8 @@ export default function Login() {
       setLoading(false);
     }
   };
+
+  const inputClass = (field) => `input ${errors[field] ? 'border-red-300 focus:ring-red-400' : ''}`;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
@@ -59,11 +88,13 @@ export default function Login() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="label">Email</label>
-              <input name="email" type="email" required className={`input ${error ? 'border-red-300 focus:ring-red-400' : ''}`} placeholder="you@example.com" value={form.email} onChange={handleChange} />
+              <input name="email" type="email" required className={inputClass('email')} placeholder="you@example.com" value={form.email} onChange={handleChange} />
+              {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
             </div>
             <div>
               <label className="label">Password</label>
-              <input name="password" type="password" required className={`input ${error ? 'border-red-300 focus:ring-red-400' : ''}`} placeholder="Enter password" value={form.password} onChange={handleChange} />
+              <input name="password" type="password" required className={inputClass('password')} placeholder="Enter password" value={form.password} onChange={handleChange} />
+              {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password}</p>}
             </div>
             <button type="submit" disabled={loading} className="btn-primary w-full mt-2">{loading ? 'Signing in...' : 'Sign in'}</button>
           </form>

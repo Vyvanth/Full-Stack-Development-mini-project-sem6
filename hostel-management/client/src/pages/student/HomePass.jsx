@@ -9,6 +9,7 @@ const getToday = () => new Date().toISOString().split('T')[0];
 export default function HomePass() {
   const [passes, setPasses] = useState([]);
   const [form, setForm] = useState({ fromDate: '', fromTime: '', toDate: '', toTime: '', reason: '' });
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [cancellingId, setCancellingId] = useState('');
   const [pendingCancelId, setPendingCancelId] = useState('');
@@ -16,44 +17,48 @@ export default function HomePass() {
   useEffect(() => { fetch(); }, []);
 
   const validateForm = () => {
+    const nextErrors = {};
     const today = getToday();
     const reason = form.reason.trim();
 
-    if (!form.fromDate || !form.fromTime || !form.toDate || !form.toTime || !reason) {
-      return 'All fields are required.';
-    }
+    if (!form.fromDate) nextErrors.fromDate = 'Please choose a start date.';
+    if (!form.fromTime) nextErrors.fromTime = 'Please choose a start time.';
+    if (!form.toDate) nextErrors.toDate = 'Please choose an end date.';
+    if (!form.toTime) nextErrors.toTime = 'Please choose an end time.';
+    if (!reason) nextErrors.reason = 'Please enter a reason.';
 
     if (form.fromDate < today) {
-      return 'From date cannot be in the past.';
+      nextErrors.fromDate = 'From date cannot be in the past.';
     }
 
     const fromDateTime = new Date(`${form.fromDate}T${form.fromTime}`);
     const toDateTime = new Date(`${form.toDate}T${form.toTime}`);
 
     if (Number.isNaN(fromDateTime.getTime()) || Number.isNaN(toDateTime.getTime())) {
-      return 'Please enter valid date and time values.';
+      if (!nextErrors.fromTime) nextErrors.fromTime = 'Please enter valid date and time values.';
     }
 
     if (toDateTime <= fromDateTime) {
-      return 'To date and time must be later than from date and time.';
+      nextErrors.toTime = 'To date and time must be later than from date and time.';
     }
 
     if (reason.length < 4) {
-      return 'Reason must be at least 4 characters long.';
+      nextErrors.reason = 'Reason must be at least 4 characters long.';
     }
 
     if (reason.length > 200) {
-      return 'Reason cannot exceed 200 characters.';
+      nextErrors.reason = 'Reason cannot exceed 200 characters.';
     }
 
-    return null;
+    return nextErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const error = validateForm();
-    if (error) {
-      toast.error(error);
+    const nextErrors = validateForm();
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      toast.error('Please fix the highlighted fields.');
       return;
     }
 
@@ -66,6 +71,7 @@ export default function HomePass() {
       });
       toast.success('Home pass applied!');
       setForm({ fromDate: '', fromTime: '', toDate: '', toTime: '', reason: '' });
+      setErrors({});
       fetch();
     }
     catch (err) { toast.error(err.response?.data?.error || 'Failed'); } finally { setLoading(false); }
@@ -104,11 +110,11 @@ export default function HomePass() {
         <div className="card p-6">
           <h2 className="font-semibold text-slate-700 mb-4">New Request</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div><label className="label">From Date</label><input type="date" required min={getToday()} className="input" value={form.fromDate} onChange={e => setForm({ ...form, fromDate: e.target.value, ...(form.toDate && form.toDate < e.target.value ? { toDate: e.target.value, toTime: '' } : {}) })} /></div>
-            <div><label className="label">From Time</label><input type="time" required className="input" value={form.fromTime} onChange={e => setForm({ ...form, fromTime: e.target.value })} /></div>
-            <div><label className="label">To Date</label><input type="date" required min={form.fromDate || getToday()} className="input" value={form.toDate} onChange={e => setForm({ ...form, toDate: e.target.value })} /></div>
-            <div><label className="label">To Time</label><input type="time" required className="input" value={form.toTime} onChange={e => setForm({ ...form, toTime: e.target.value })} /></div>
-            <div><label className="label">Reason</label><textarea required minLength={4} maxLength={200} rows={3} className="input resize-none" value={form.reason} onChange={e => setForm({ ...form, reason: e.target.value })} /></div>
+            <div><label className="label">From Date</label><input type="date" required min={getToday()} className={`input ${errors.fromDate ? 'border-red-300 focus:ring-red-400' : ''}`} value={form.fromDate} onChange={e => { setForm({ ...form, fromDate: e.target.value, ...(form.toDate && form.toDate < e.target.value ? { toDate: e.target.value, toTime: '' } : {}) }); if (errors.fromDate) setErrors({ ...errors, fromDate: '' }); }} />{errors.fromDate && <p className="mt-1 text-xs text-red-500">{errors.fromDate}</p>}</div>
+            <div><label className="label">From Time</label><input type="time" required className={`input ${errors.fromTime ? 'border-red-300 focus:ring-red-400' : ''}`} value={form.fromTime} onChange={e => { setForm({ ...form, fromTime: e.target.value }); if (errors.fromTime) setErrors({ ...errors, fromTime: '' }); }} />{errors.fromTime && <p className="mt-1 text-xs text-red-500">{errors.fromTime}</p>}</div>
+            <div><label className="label">To Date</label><input type="date" required min={form.fromDate || getToday()} className={`input ${errors.toDate ? 'border-red-300 focus:ring-red-400' : ''}`} value={form.toDate} onChange={e => { setForm({ ...form, toDate: e.target.value }); if (errors.toDate) setErrors({ ...errors, toDate: '' }); }} />{errors.toDate && <p className="mt-1 text-xs text-red-500">{errors.toDate}</p>}</div>
+            <div><label className="label">To Time</label><input type="time" required className={`input ${errors.toTime ? 'border-red-300 focus:ring-red-400' : ''}`} value={form.toTime} onChange={e => { setForm({ ...form, toTime: e.target.value }); if (errors.toTime) setErrors({ ...errors, toTime: '' }); }} />{errors.toTime && <p className="mt-1 text-xs text-red-500">{errors.toTime}</p>}</div>
+            <div><label className="label">Reason</label><textarea required minLength={4} maxLength={200} rows={3} className={`input resize-none ${errors.reason ? 'border-red-300 focus:ring-red-400' : ''}`} value={form.reason} onChange={e => { setForm({ ...form, reason: e.target.value }); if (errors.reason) setErrors({ ...errors, reason: '' }); }} />{errors.reason ? <p className="mt-1 text-xs text-red-500">{errors.reason}</p> : <p className="mt-1 text-xs text-slate-400">Mention your purpose briefly.</p>}</div>
             <button type="submit" disabled={loading} className="btn-primary w-full">{loading ? 'Submitting...' : 'Apply'}</button>
           </form>
         </div>

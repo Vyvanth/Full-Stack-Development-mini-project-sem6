@@ -7,7 +7,9 @@ export default function Profile() {
   const [profile, setProfile] = useState(null);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({});
+  const [profileErrors, setProfileErrors] = useState({});
   const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '', confirm: '' });
+  const [pwErrors, setPwErrors] = useState({});
 
   useEffect(() => {
     api.get('/students/profile').then(({ data }) => {
@@ -16,21 +18,52 @@ export default function Profile() {
     });
   }, []);
 
+  const validateProfile = () => {
+    const nextErrors = {};
+    const fullName = form.fullName?.trim() || '';
+    const phone = form.phone?.trim() || '';
+    const guardianPhone = form.guardianPhone?.trim() || '';
+
+    if (fullName.length < 3) nextErrors.fullName = 'Full name must be at least 3 characters.';
+    if (phone && !/^[6-9]\d{9}$/.test(phone)) nextErrors.phone = 'Enter a valid 10-digit mobile number.';
+    if (guardianPhone && !/^[6-9]\d{9}$/.test(guardianPhone)) nextErrors.guardianPhone = 'Enter a valid 10-digit guardian mobile number.';
+    if (form.address && form.address.trim().length > 250) nextErrors.address = 'Address cannot exceed 250 characters.';
+
+    return nextErrors;
+  };
+
   const handleSave = async () => {
+    const nextErrors = validateProfile();
+    if (Object.keys(nextErrors).length > 0) {
+      setProfileErrors(nextErrors);
+      toast.error('Please fix the highlighted profile fields.');
+      return;
+    }
     try {
       await api.put('/students/profile', form);
       toast.success('Profile updated!');
       setEditing(false);
+      setProfileErrors({});
     } catch { toast.error('Update failed'); }
   };
 
   const handlePwChange = async (e) => {
     e.preventDefault();
-    if (pwForm.newPassword !== pwForm.confirm) return toast.error('Passwords do not match');
+    const nextErrors = {};
+    if (!pwForm.currentPassword) nextErrors.currentPassword = 'Current password is required.';
+    if (!pwForm.newPassword) nextErrors.newPassword = 'New password is required.';
+    else if (pwForm.newPassword.length < 6) nextErrors.newPassword = 'New password must be at least 6 characters.';
+    if (pwForm.confirm !== pwForm.newPassword) nextErrors.confirm = 'Passwords do not match.';
+    if (Object.keys(nextErrors).length > 0) {
+      setPwErrors(nextErrors);
+      toast.error('Please fix the highlighted password fields.');
+      return;
+    }
     try {
       await api.post('/auth/change-password', { currentPassword: pwForm.currentPassword, newPassword: pwForm.newPassword });
       toast.success('Password changed!');
       setPwForm({ currentPassword: '', newPassword: '', confirm: '' });
+      setPwErrors({});
     } catch (err) { toast.error(err.response?.data?.error || 'Failed'); }
   };
 
@@ -52,7 +85,7 @@ export default function Profile() {
               <div key={key}>
                 <label className="label">{label}</label>
                 {editing
-                  ? <input className="input" value={form[key]} onChange={e => setForm({ ...form, [key]: e.target.value })} />
+                  ? <><input className={`input ${profileErrors[key] ? 'border-red-300 focus:ring-red-400' : ''}`} value={form[key]} onChange={e => { setForm({ ...form, [key]: e.target.value }); if (profileErrors[key]) setProfileErrors({ ...profileErrors, [key]: '' }); }} />{profileErrors[key] && <p className="mt-1 text-xs text-red-500">{profileErrors[key]}</p>}</>
                   : <p className="text-sm text-slate-800 py-2">{form[key] || '-'}</p>}
               </div>
             ))}
@@ -67,7 +100,8 @@ export default function Profile() {
             {[['currentPassword', 'Current Password'], ['newPassword', 'New Password'], ['confirm', 'Confirm Password']].map(([key, label]) => (
               <div key={key}>
                 <label className="label">{label}</label>
-                <input type="password" className="input" value={pwForm[key]} onChange={e => setPwForm({ ...pwForm, [key]: e.target.value })} />
+                <input type="password" className={`input ${pwErrors[key] ? 'border-red-300 focus:ring-red-400' : ''}`} value={pwForm[key]} onChange={e => { setPwForm({ ...pwForm, [key]: e.target.value }); if (pwErrors[key]) setPwErrors({ ...pwErrors, [key]: '' }); }} />
+                {pwErrors[key] && <p className="mt-1 text-xs text-red-500">{pwErrors[key]}</p>}
               </div>
             ))}
             <button type="submit" className="btn-primary w-full mt-2">Update Password</button>

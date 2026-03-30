@@ -25,6 +25,7 @@ export default function PaymentManagement() {
   const [filterStatus, setFilterStatus] = useState('');
   const [filterFee, setFilterFee] = useState('');
   const [loading, setLoading] = useState(true);
+  const [feeErrors, setFeeErrors] = useState({});
   const minDueDate = getTodayInputValue();
   const currentAcademicYear = getCurrentAcademicYear();
 
@@ -62,26 +63,23 @@ export default function PaymentManagement() {
   // â”€â”€ Create or Update Fee â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleFeeSubmit = async (e) => {
     e.preventDefault();
-    if (feeForm.dueDate && feeForm.dueDate < minDueDate) {
-      toast.error('Due date cannot be in the past.');
-      return;
-    }
-
-    if (!/^\d{4}-\d{2}$/.test(feeForm.academicYear)) {
-      toast.error('Academic year must be in YYYY-YY format.');
-      return;
-    }
+    const nextErrors = {};
+    if (!feeForm.title.trim()) nextErrors.title = 'Fee title is required.';
+    else if (feeForm.title.trim().length < 3) nextErrors.title = 'Fee title must be at least 3 characters.';
+    if (!feeForm.amount || Number(feeForm.amount) <= 0) nextErrors.amount = 'Amount must be greater than 0.';
+    if (!feeForm.dueDate) nextErrors.dueDate = 'Due date is required.';
+    else if (feeForm.dueDate < minDueDate) nextErrors.dueDate = 'Due date cannot be in the past.';
+    if (!/^\d{4}-\d{2}$/.test(feeForm.academicYear)) nextErrors.academicYear = 'Academic year must be in YYYY-YY format.';
 
     const [startYearText, endYearSuffix] = feeForm.academicYear.split('-');
     const startYear = Number(startYearText);
     const expectedEndYearSuffix = String((startYear + 1) % 100).padStart(2, '0');
-    if (endYearSuffix !== expectedEndYearSuffix) {
-      toast.error('Academic year must be a valid consecutive range like 2025-26.');
-      return;
-    }
+    if (!nextErrors.academicYear && endYearSuffix !== expectedEndYearSuffix) nextErrors.academicYear = 'Academic year must be a valid consecutive range like 2025-26.';
+    if (!nextErrors.academicYear && feeForm.academicYear < currentAcademicYear) nextErrors.academicYear = `Academic year cannot be earlier than ${currentAcademicYear}.`;
 
-    if (feeForm.academicYear < currentAcademicYear) {
-      toast.error(`Academic year cannot be earlier than ${currentAcademicYear}.`);
+    if (Object.keys(nextErrors).length > 0) {
+      setFeeErrors(nextErrors);
+      toast.error('Please fix the highlighted fee fields.');
       return;
     }
 
@@ -96,6 +94,7 @@ export default function PaymentManagement() {
         toast.success('Fee created and assigned to all students!');
       }
       setFeeForm(EMPTY_FEE_FORM);
+      setFeeErrors({});
       fetchAll();
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to save fee');
@@ -267,24 +266,27 @@ export default function PaymentManagement() {
             <form onSubmit={handleFeeSubmit} className="space-y-3">
               <div>
                 <label className="label">Title</label>
-                <input required className="input" placeholder="e.g. Hostel Fee "
-                  value={feeForm.title} onChange={e => setFeeForm({ ...feeForm, title: e.target.value })} />
+                <input required className={`input ${feeErrors.title ? 'border-red-300 focus:ring-red-400' : ''}`} placeholder="e.g. Hostel Fee "
+                  value={feeForm.title} onChange={e => { setFeeForm({ ...feeForm, title: e.target.value }); if (feeErrors.title) setFeeErrors({ ...feeErrors, title: '' }); }} />
+                {feeErrors.title && <p className="mt-1 text-xs text-red-500">{feeErrors.title}</p>}
               </div>
               <div>
                     <label className="label">Amount (₹)</label>
-                <input type="number" required min="1" className="input"
-                  value={feeForm.amount} onChange={e => setFeeForm({ ...feeForm, amount: e.target.value })} />
+                <input type="number" required min="1" className={`input ${feeErrors.amount ? 'border-red-300 focus:ring-red-400' : ''}`}
+                  value={feeForm.amount} onChange={e => { setFeeForm({ ...feeForm, amount: e.target.value }); if (feeErrors.amount) setFeeErrors({ ...feeErrors, amount: '' }); }} />
+                {feeErrors.amount && <p className="mt-1 text-xs text-red-500">{feeErrors.amount}</p>}
               </div>
               <div>
                 <label className="label">Due Date</label>
-                <input type="date" required className="input" min={minDueDate}
-                  value={feeForm.dueDate} onChange={e => setFeeForm({ ...feeForm, dueDate: e.target.value })} />
+                <input type="date" required className={`input ${feeErrors.dueDate ? 'border-red-300 focus:ring-red-400' : ''}`} min={minDueDate}
+                  value={feeForm.dueDate} onChange={e => { setFeeForm({ ...feeForm, dueDate: e.target.value }); if (feeErrors.dueDate) setFeeErrors({ ...feeErrors, dueDate: '' }); }} />
+                {feeErrors.dueDate && <p className="mt-1 text-xs text-red-500">{feeErrors.dueDate}</p>}
               </div>
               <div>
                 <label className="label">Academic Year</label>
-                <input required className="input" placeholder={currentAcademicYear}
-                  value={feeForm.academicYear} onChange={e => setFeeForm({ ...feeForm, academicYear: e.target.value })} />
-                <p className="mt-1 text-xs text-slate-400">Use current or future academic years only, for example {currentAcademicYear}.</p>
+                <input required className={`input ${feeErrors.academicYear ? 'border-red-300 focus:ring-red-400' : ''}`} placeholder={currentAcademicYear}
+                  value={feeForm.academicYear} onChange={e => { setFeeForm({ ...feeForm, academicYear: e.target.value }); if (feeErrors.academicYear) setFeeErrors({ ...feeErrors, academicYear: '' }); }} />
+                {feeErrors.academicYear ? <p className="mt-1 text-xs text-red-500">{feeErrors.academicYear}</p> : <p className="mt-1 text-xs text-slate-400">Use current or future academic years only, for example {currentAcademicYear}.</p>}
               </div>
               <div className="flex gap-2 pt-1">
                 <button type="submit" className="btn-primary flex-1">

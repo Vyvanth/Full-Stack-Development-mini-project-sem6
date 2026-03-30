@@ -9,8 +9,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ─── Enums ────────────────────────────────────────────────────────────────────
-
 enum Role {
   STUDENT
   ADMIN
@@ -66,8 +64,6 @@ enum RoomStatus {
   MAINTENANCE
 }
 
-// ─── Models ───────────────────────────────────────────────────────────────────
-
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -116,14 +112,14 @@ model Admin {
 }
 
 model Room {
-  id          String     @id @default(uuid())
-  roomNumber  String     @unique
-  block       String
-  floor       Int
-  capacity    Int
-  occupiedCount Int      @default(0)
-  status      RoomStatus @default(AVAILABLE)
-  amenities   String[]
+  id            String     @id @default(uuid())
+  roomNumber    String     @unique
+  block         String
+  floor         Int
+  capacity      Int
+  occupiedCount Int        @default(0)
+  status        RoomStatus @default(AVAILABLE)
+  amenities     String[]
 
   allocations RoomAllocation[]
 
@@ -158,29 +154,29 @@ model Complaint {
 }
 
 model Fee {
-  id          String        @id @default(uuid())
-  title       String
-  amount      Float
-  dueDate     DateTime
+  id           String   @id @default(uuid())
+  title        String
+  amount       Float
+  dueDate      DateTime
   academicYear String
 
-  payments    Payment[]
+  payments Payment[]
 
   createdAt DateTime @default(now())
 }
 
 model Payment {
-  id              String        @id @default(uuid())
-  studentId       String
-  student         Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  feeId           String
-  fee             Fee           @relation(fields: [feeId], references: [id])
-  amount          Float
-  status          PaymentStatus @default(PENDING)
-  razorpayOrderId String?
+  id                String        @id @default(uuid())
+  studentId         String
+  student           Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  feeId             String
+  fee               Fee           @relation(fields: [feeId], references: [id])
+  amount            Float
+  status            PaymentStatus @default(PENDING)
+  razorpayOrderId   String?
   razorpayPaymentId String?
-  receipt         String?
-  paidAt          DateTime?
+  receipt           String?
+  paidAt            DateTime?
 
   createdAt DateTime @default(now())
 }
@@ -204,13 +200,13 @@ model FoodMenu {
 }
 
 model FoodFeedback {
-  id         String   @id @default(uuid())
-  menuId     String
-  menu       FoodMenu @relation(fields: [menuId], references: [id])
-  studentId  String
-  rating     Int
-  comment    String?
-  createdAt  DateTime @default(now())
+  id        String   @id @default(uuid())
+  menuId    String
+  menu      FoodMenu @relation(fields: [menuId], references: [id])
+  studentId String
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
 }
 
 model LaundryRequest {
@@ -246,17 +242,17 @@ model OutPass {
 }
 
 model HomePass {
-  id               String     @id @default(uuid())
-  studentId        String
-  student          Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  fromDate         DateTime
-  toDate           DateTime
-  destination      String
-  guardianContact  String
-  reason           String
-  status           PassStatus @default(PENDING)
-  remarks          String?
-  approvedBy       String?
+  id              String     @id @default(uuid())
+  studentId       String
+  student         Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  fromDate        DateTime
+  toDate          DateTime
+  destination     String
+  guardianContact String
+  reason          String
+  status          PassStatus @default(PENDING)
+  remarks         String?
+  approvedBy      String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

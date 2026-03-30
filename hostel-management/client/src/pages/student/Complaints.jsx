@@ -8,19 +8,45 @@ const CATEGORIES = ['Maintenance', 'Electrical', 'Plumbing', 'Cleanliness', 'Sec
 export default function Complaints() {
   const [complaints, setComplaints] = useState([]);
   const [form, setForm] = useState({ category: '', description: '' });
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
   const fetch = () => api.get('/complaints').then(({ data }) => setComplaints(data.complaints));
 
   useEffect(() => { fetch(); }, []);
 
+  const validateForm = () => {
+    const nextErrors = {};
+    if (!form.category) {
+      nextErrors.category = 'Please choose a complaint category.';
+    }
+
+    const description = form.description.trim();
+    if (!description) {
+      nextErrors.description = 'Please describe the issue.';
+    } else if (description.length < 10) {
+      nextErrors.description = 'Description must be at least 10 characters.';
+    } else if (description.length > 500) {
+      nextErrors.description = 'Description cannot exceed 500 characters.';
+    }
+
+    return nextErrors;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const nextErrors = validateForm();
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      toast.error('Please fix the highlighted fields.');
+      return;
+    }
     setLoading(true);
     try {
       await api.post('/complaints', form);
       toast.success('Complaint submitted!');
       setForm({ category: '', description: '' });
+      setErrors({});
       fetch();
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to submit');
@@ -39,15 +65,17 @@ export default function Complaints() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="label">Category</label>
-              <select required className="input" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
+              <select required className={`input ${errors.category ? 'border-red-300 focus:ring-red-400' : ''}`} value={form.category} onChange={e => { setForm({ ...form, category: e.target.value }); if (errors.category) setErrors({ ...errors, category: '' }); }}>
                 <option value="">Select category</option>
                 {CATEGORIES.map(c => <option key={c}>{c}</option>)}
               </select>
+              {errors.category && <p className="mt-1 text-xs text-red-500">{errors.category}</p>}
             </div>
             <div>
               <label className="label">Description</label>
-              <textarea required rows={4} className="input resize-none" placeholder="Describe your issue..."
-                value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+              <textarea required rows={4} className={`input resize-none ${errors.description ? 'border-red-300 focus:ring-red-400' : ''}`} placeholder="Describe your issue..."
+                value={form.description} onChange={e => { setForm({ ...form, description: e.target.value }); if (errors.description) setErrors({ ...errors, description: '' }); }} />
+              {errors.description ? <p className="mt-1 text-xs text-red-500">{errors.description}</p> : <p className="mt-1 text-xs text-slate-400">Be specific so the hostel team can act faster.</p>}
             </div>
             <button type="submit" disabled={loading} className="btn-primary w-full">
               {loading ? 'Submitting...' : 'Submit Complaint'}
