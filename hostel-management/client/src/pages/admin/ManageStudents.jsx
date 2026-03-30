@@ -49,8 +49,8 @@ export default function ManageStudents() {
                   <td className="px-4 py-3 font-medium">{s.fullName}</td>
                   <td className="px-4 py-3 text-slate-500">{s.gender === 'FEMALE' ? 'Female' : 'Male'}</td>
                   <td className="px-4 py-3 text-slate-500 font-mono text-xs">{s.rollNumber}</td>
-                  <td className="px-4 py-3 text-slate-500">{s.course} Â· {s.branch}</td>
-                  <td className="px-4 py-3">{s.roomAllocation?.room?.roomNumber || <span className="text-slate-300">â€”</span>}</td>
+                  <td className="px-4 py-3 text-slate-500">{s.course} - {s.branch}</td>
+                  <td className="px-4 py-3">{s.roomAllocation?.room?.roomNumber || <span className="text-slate-300">-</span>}</td>
                   <td className="px-4 py-3 text-slate-500">{s.phone}</td>
                   <td className="px-4 py-3">
                     <button onClick={() => handleDelete(s.id, s.fullName)} className="text-red-500 hover:text-red-700 text-xs font-medium">Delete</button>

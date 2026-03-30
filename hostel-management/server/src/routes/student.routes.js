@@ -20,7 +20,12 @@ router.get('/profile', async (req, res, next) => {
       },
     });
     if (!student) return res.status(404).json({ error: 'Student not found' });
-    res.json({ student });
+    res.json({
+      student: {
+        ...student,
+        roomAllocation: student.roomAllocation?.isActive ? student.roomAllocation : null,
+      },
+    });
   } catch (err) {
     next(err);
   }
@@ -67,7 +72,15 @@ router.get('/', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) => {
       prisma.student.count({ where }),
     ]);
 
-    res.json({ students, total, page: Number(page), totalPages: Math.ceil(total / Number(limit)) });
+    res.json({
+      students: students.map((student) => ({
+        ...student,
+        roomAllocation: student.roomAllocation?.isActive ? student.roomAllocation : null,
+      })),
+      total,
+      page: Number(page),
+      totalPages: Math.ceil(total / Number(limit)),
+    });
   } catch (err) {
     next(err);
   }
@@ -86,7 +99,12 @@ router.get('/:id', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) => 
       },
     });
     if (!student) return res.status(404).json({ error: 'Student not found' });
-    res.json({ student });
+    res.json({
+      student: {
+        ...student,
+        roomAllocation: student.roomAllocation?.isActive ? student.roomAllocation : null,
+      },
+    });
   } catch (err) {
     next(err);
   }
