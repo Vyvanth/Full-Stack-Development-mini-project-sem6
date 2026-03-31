@@ -27,13 +27,12 @@ const DashboardIcon = ({ src, alt, size = 'md' }) => {
 
 const Stat = ({ label, value, icon, tone = 'blue', color = 'blue', to, helper }) => {
   const content = (
-    <div className="flex items-start justify-between gap-4">
+    <div>
       <div>
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">{label}</p>
         <p className={`mt-3 text-3xl font-bold ${statColorClasses[color] || statColorClasses.slate}`}>{value}</p>
         {helper && <p className="mt-1 text-xs text-slate-400">{helper}</p>}
       </div>
-      {typeof icon === 'string' ? <UiIcon label={icon} size="md" tone={tone} /> : <DashboardIcon src={icon.src} alt={icon.alt} />}
     </div>
   );
 
@@ -71,7 +70,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-[32px] border border-slate-200 bg-[radial-gradient(circle_at_top_left,rgba(20,184,166,0.1),transparent_30%),linear-gradient(135deg,#ffffff,#f8fafc)] px-7 py-7 shadow-[0_18px_40px_rgba(15,23,42,0.06)]">
+      <section className="rounded-[32px] border border-slate-200 bg-white px-7 py-7 shadow-[0_18px_40px_rgba(15,23,42,0.06)]">
         <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-teal-700">Administration</p>
