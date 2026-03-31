@@ -18,15 +18,14 @@ const DashboardIcon = ({ src, alt, size = 'sm' }) => {
   );
 };
 
-const StatCard = ({ label, value, sub, color = 'blue', link, icon, tone = 'slate' }) => (
+const StatCard = ({ label, value, sub, color = 'blue', link }) => (
   <Link to={link || '#'} className="card p-5 hover:shadow-xl hover:-translate-y-0.5 transition-all block bg-[linear-gradient(160deg,#ffffff,rgba(248,250,252,0.92))] border-sky-100">
-    <div className="flex items-start justify-between">
+    <div>
       <div>
         <p className="text-xs font-semibold text-sky-500 uppercase tracking-[0.18em]">{label}</p>
         <p className={`text-2xl font-bold mt-1 text-${color}-600`}>{value}</p>
         {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
       </div>
-      {typeof icon === 'string' ? <UiIcon label={icon} size="md" tone={tone} /> : <DashboardIcon src={icon.src} alt={icon.alt} size="md" />}
     </div>
   </Link>
 );
@@ -72,10 +71,10 @@ export default function StudentDashboard() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard label="My Room" value={profile?.roomAllocation?.room?.roomNumber || 'Not Assigned'} sub={profile?.roomAllocation ? `Block ${profile.roomAllocation.room.block}, Floor ${profile.roomAllocation.room.floor}` : 'Contact admin'} color="primary" tone="indigo" link="/student/room" icon={{ src: roomIcon, alt: 'My room' }} />
-        <StatCard label="Pending Payments" value={pendingPayments} sub="Tap to pay now" color={pendingPayments > 0 ? 'red' : 'green'} tone={pendingPayments > 0 ? 'red' : 'green'} link="/student/payments" icon={{ src: feeIcon, alt: 'Pending payments' }} />
-        <StatCard label="Open Complaints" value={openComplaints} sub={openComplaints > 0 ? 'Being processed' : 'All resolved'} color={openComplaints > 0 ? 'yellow' : 'green'} tone={openComplaints > 0 ? 'amber' : 'green'} link="/student/complaints" icon={{ src: complaintIcon, alt: 'Open complaints' }} />
-        <StatCard label="My Profile" value="View" sub="Manage your details" color="slate" tone="slate" link="/student/profile" icon={'\u{1F464}'} />
+        <StatCard label="My Room" value={profile?.roomAllocation?.room?.roomNumber || 'Not Assigned'} sub={profile?.roomAllocation ? `Block ${profile.roomAllocation.room.block}, Floor ${profile.roomAllocation.room.floor}` : 'Contact admin'} color="primary" link="/student/room" />
+        <StatCard label="Pending Payments" value={pendingPayments} sub="Tap to pay now" color={pendingPayments > 0 ? 'red' : 'green'} link="/student/payments" />
+        <StatCard label="Open Complaints" value={openComplaints} sub={openComplaints > 0 ? 'Being processed' : 'All resolved'} color={openComplaints > 0 ? 'yellow' : 'green'} link="/student/complaints" />
+        <StatCard label="My Profile" value="View" sub="Manage your details" color="slate" link="/student/profile" />
       </div>
 
       <h2 className="text-sm font-semibold text-sky-500 uppercase tracking-[0.2em] mb-3">Quick Actions</h2>
