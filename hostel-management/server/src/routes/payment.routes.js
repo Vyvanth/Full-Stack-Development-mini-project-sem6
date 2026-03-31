@@ -2,6 +2,7 @@
 const express = require('express');
 const prisma = require('../prisma/client');
 const { authenticate, authorizeRoles } = require('../middleware/auth.middleware');
+const { sendEmail } = require('../utils/mailer');
 
 const router = express.Router();
 router.use(authenticate);
@@ -15,6 +16,22 @@ function getCurrentAcademicYear() {
   const startYear = month >= 6 ? year : year - 1;
   const endYearSuffix = String((startYear + 1) % 100).padStart(2, '0');
   return `${startYear}-${endYearSuffix}`;
+}
+
+function formatCurrency(amount) {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+function formatDate(date) {
+  return new Intl.DateTimeFormat('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).format(new Date(date));
 }
 
 function normalizeFeePayload({ title, amount, dueDate, academicYear }) {
@@ -126,6 +143,12 @@ router.post('/fees', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) =
     });
 
     const students = await prisma.student.findMany({ select: { id: true } });
+    const studentsWithEmails = await prisma.student.findMany({
+      select: {
+        fullName: true,
+        user: { select: { email: true } },
+      },
+    });
 
     if (students.length > 0) {
       await prisma.payment.createMany({
@@ -138,6 +161,28 @@ router.post('/fees', authorizeRoles('ADMIN', 'WARDEN'), async (req, res, next) =
         skipDuplicates: true,
       });
     }
+
+    await Promise.allSettled(
+      studentsWithEmails
+        .filter((student) => student.user?.email)
+        .map((student) => sendEmail({
+          to: student.user.email,
+          subject: `New Fee Due: ${fee.title}`,
+          text: `Hello ${student.fullName}, a new fee "${fee.title}" of ${formatCurrency(fee.amount)} has been created. Due date: ${formatDate(fee.dueDate)}.`,
+          html: `
+            <div style="font-family: Arial, sans-serif; color: #0f172a;">
+              <h2>New Fee Due</h2>
+              <p>Hello ${student.fullName},</p>
+              <p>A new fee has been created in Campus Nest.</p>
+              <p><strong>Fee:</strong> ${fee.title}<br/>
+              <strong>Amount:</strong> ${formatCurrency(fee.amount)}<br/>
+              <strong>Due Date:</strong> ${formatDate(fee.dueDate)}<br/>
+              <strong>Academic Year:</strong> ${fee.academicYear}</p>
+              <p>Please complete the payment before the due date.</p>
+            </div>
+          `,
+        }))
+    );
 
     res.status(201).json({
       fee,
@@ -268,7 +313,39 @@ router.post('/verify', async (req, res, next) => {
         razorpayPaymentId: razorpay_payment_id,
         paidAt: new Date(),
       },
+      include: {
+        fee: true,
+        student: {
+          include: {
+            user: { select: { email: true } },
+          },
+        },
+      },
     });
+
+    try {
+      if (payment.student?.user?.email) {
+        await sendEmail({
+          to: payment.student.user.email,
+          subject: `Payment Successful: ${payment.fee.title}`,
+          text: `Hello ${payment.student.fullName}, your payment of ${formatCurrency(payment.amount)} for "${payment.fee.title}" was received successfully on ${formatDate(payment.paidAt)}.`,
+          html: `
+            <div style="font-family: Arial, sans-serif; color: #0f172a;">
+              <h2>Payment Successful</h2>
+              <p>Hello ${payment.student.fullName},</p>
+              <p>Your payment was received successfully.</p>
+              <p><strong>Fee:</strong> ${payment.fee.title}<br/>
+              <strong>Amount Paid:</strong> ${formatCurrency(payment.amount)}<br/>
+              <strong>Paid On:</strong> ${formatDate(payment.paidAt)}<br/>
+              <strong>Payment ID:</strong> ${razorpay_payment_id}</p>
+              <p>Thank you.</p>
+            </div>
+          `,
+        });
+      }
+    } catch (mailErr) {
+      console.warn('Payment success email failed:', mailErr.message);
+    }
 
     res.json({ message: 'Payment verified successfully.', payment });
   } catch (err) {

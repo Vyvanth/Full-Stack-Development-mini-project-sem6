@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const prisma = require('../prisma/client');
 const { authenticate } = require('../middleware/auth.middleware');
+const { sendEmail } = require('../utils/mailer');
 
 const router = express.Router();
 
@@ -95,6 +96,28 @@ router.post('/register', async (req, res, next) => {
 
     const token = generateToken(user.id);
     const { password: _pw, ...safeUser } = user;
+
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: 'Welcome to Campus Nest',
+        text: `Hello ${user.student.fullName}, your Campus Nest account has been created successfully. You can now sign in and use the hostel portal.`,
+        html: `
+          <div style="font-family: Arial, sans-serif; color: #0f172a;">
+            <h2>Welcome to Campus Nest</h2>
+            <p>Hello ${user.student.fullName},</p>
+            <p>Your account has been created successfully.</p>
+            <p>You can now sign in with <strong>${user.email}</strong> and use the hostel portal.</p>
+            <p><strong>Course:</strong> ${user.student.course}<br/>
+            <strong>Branch:</strong> ${user.student.branch}<br/>
+            <strong>Roll Number:</strong> ${user.student.rollNumber}</p>
+            <p>We are happy to have you on Campus Nest.</p>
+          </div>
+        `,
+      });
+    } catch (mailErr) {
+      console.warn('Welcome email failed:', mailErr.message);
+    }
 
     res.status(201).json({
       message: 'Registration successful',

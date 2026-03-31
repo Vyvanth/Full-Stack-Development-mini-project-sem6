@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import api from '../../api/client';
 import toast from 'react-hot-toast';
+import ConfirmDialog from '../../components/ConfirmDialog';
 
 const getCurrentAcademicYear = () => {
   const now = new Date();
@@ -26,6 +27,7 @@ export default function PaymentManagement() {
   const [filterFee, setFilterFee] = useState('');
   const [loading, setLoading] = useState(true);
   const [feeErrors, setFeeErrors] = useState({});
+  const [confirmState, setConfirmState] = useState(null);
   const minDueDate = getTodayInputValue();
   const currentAcademicYear = getCurrentAcademicYear();
 
@@ -117,9 +119,11 @@ export default function PaymentManagement() {
     setFeeForm(EMPTY_FEE_FORM);
   };
 
+  const openConfirm = (config) => setConfirmState(config);
+  const closeConfirm = () => setConfirmState(null);
+
   // â”€â”€ Delete Fee â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const deleteFee = async (fee) => {
-    if (!window.confirm(`Delete "${fee.title}"? This will also remove all related payment records.`)) return;
     try {
       await api.delete(`/payments/fees/${fee.id}`);
       toast.success('Fee deleted.');
@@ -131,7 +135,6 @@ export default function PaymentManagement() {
 
   // â”€â”€ Mark payment as paid (cash) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const markPaid = async (payment) => {
-    if (!window.confirm(`Mark ₹${payment.amount} payment for ${payment.student?.fullName} as paid (cash)?`)) return;
     try {
       await api.patch(`/payments/${payment.id}`, { status: 'PAID' });
       toast.success('Payment marked as received!');
@@ -143,7 +146,6 @@ export default function PaymentManagement() {
 
   // â”€â”€ Mark payment as pending â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const markPending = async (payment) => {
-    if (!window.confirm(`Revert payment for ${payment.student?.fullName} back to PENDING?`)) return;
     try {
       await api.patch(`/payments/${payment.id}`, { status: 'PENDING' });
       toast.success('Payment reverted to pending.');
@@ -161,6 +163,20 @@ export default function PaymentManagement() {
 
   return (
     <div>
+      <ConfirmDialog
+        open={Boolean(confirmState)}
+        title={confirmState?.title || 'Confirm action'}
+        message={confirmState?.message || ''}
+        confirmLabel={confirmState?.confirmLabel || 'Confirm'}
+        cancelLabel={confirmState?.cancelLabel || 'Cancel'}
+        tone={confirmState?.tone || 'danger'}
+        onConfirm={async () => {
+          if (!confirmState?.onConfirm) return;
+          await confirmState.onConfirm();
+          closeConfirm();
+        }}
+        onCancel={closeConfirm}
+      />
       <h1 className="text-2xl font-bold text-slate-800 mb-6">Payment Management</h1>
 
       {/* â”€â”€ Stats â”€â”€ */}
@@ -234,12 +250,26 @@ export default function PaymentManagement() {
                       <td className="px-4 py-3 text-slate-500">{p.paidAt ? new Date(p.paidAt).toLocaleDateString('en-IN') : '-'}</td>
                       <td className="px-4 py-3">
                         {p.status !== 'PAID' ? (
-                          <button onClick={() => markPaid(p)}
+                          <button onClick={() => openConfirm({
+                            title: 'Mark payment as received?',
+                            message: `Mark ${p.student?.fullName}'s payment of ₹${p.amount.toLocaleString()} as paid by cash?`,
+                            confirmLabel: 'Mark Received',
+                            cancelLabel: 'Cancel',
+                            tone: 'primary',
+                            onConfirm: () => markPaid(p),
+                          })}
                             className="text-xs bg-green-100 text-green-700 hover:bg-green-200 font-medium px-3 py-1 rounded-lg transition-colors">
                             Mark Received
                           </button>
                         ) : (
-                          <button onClick={() => markPending(p)}
+                          <button onClick={() => openConfirm({
+                            title: 'Revert payment to pending?',
+                            message: `This will change ${p.student?.fullName}'s payment status back to pending.`,
+                            confirmLabel: 'Revert',
+                            cancelLabel: 'Keep Paid',
+                            tone: 'danger',
+                            onConfirm: () => markPending(p),
+                          })}
                             className="text-xs bg-slate-100 text-slate-500 hover:bg-slate-200 font-medium px-3 py-1 rounded-lg transition-colors">
                             Revert
                           </button>
@@ -335,7 +365,14 @@ export default function PaymentManagement() {
                             className="text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 font-medium px-3 py-1 rounded-lg transition-colors">
                             Edit
                           </button>
-                          <button onClick={() => deleteFee(f)}
+                          <button onClick={() => openConfirm({
+                            title: 'Delete fee structure?',
+                            message: `Delete "${f.title}" and remove all related payment records? This cannot be undone.`,
+                            confirmLabel: 'Delete Fee',
+                            cancelLabel: 'Keep Fee',
+                            tone: 'danger',
+                            onConfirm: () => deleteFee(f),
+                          })}
                             className="text-xs bg-red-100 text-red-700 hover:bg-red-200 font-medium px-3 py-1 rounded-lg transition-colors">
                             Delete
                           </button>
