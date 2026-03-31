@@ -22,8 +22,8 @@ export default function RoomDetails() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-[30px] border border-sky-100 bg-[radial-gradient(circle_at_top_left,rgba(191,219,254,0.45),transparent_28%),linear-gradient(135deg,#ffffff,#f8fbff)] px-7 py-7 shadow-[0_18px_42px_rgba(15,23,42,0.06)]">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-600">Accommodation Overview</p>
+      <div className="rounded-[30px] border border-slate-200 bg-white px-7 py-7 shadow-[0_18px_42px_rgba(15,23,42,0.06)]">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">Accommodation Overview</p>
         <div className="mt-3 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <h1 className="text-4xl font-bold tracking-tight text-slate-900">My Room</h1>
@@ -33,15 +33,15 @@ export default function RoomDetails() {
           </div>
           {alloc && (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3 shadow-sm">
+              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Room Number</p>
                 <p className="mt-2 text-2xl font-bold text-slate-900">{alloc.room.roomNumber}</p>
               </div>
-              <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3 shadow-sm">
+              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Status</p>
                 <p className="mt-2 text-lg font-semibold text-slate-900">{alloc.room.status}</p>
               </div>
-              <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3 shadow-sm">
+              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Occupancy</p>
                 <p className="mt-2 text-lg font-semibold text-slate-900">{alloc.room.occupiedCount}/{alloc.room.capacity}</p>
               </div>
