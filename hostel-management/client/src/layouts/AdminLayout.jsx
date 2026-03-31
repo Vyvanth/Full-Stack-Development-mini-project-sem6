@@ -119,7 +119,7 @@ export default function AdminLayout() {
               <BrandMark compact dark />
               <div>
                 <h1 className="text-lg font-bold tracking-tight text-white">Campus Nest</h1>
-                <p className="mt-1 text-[11px] uppercase tracking-[0.22em] text-teal-300">Operations Console</p>
+                <p className="mt-1 text-[11px] uppercase tracking-[0.22em] text-blue-300">Operations Console</p>
               </div>
             </div>
             <div className="mt-5 rounded-2xl border border-slate-700/80 bg-white/5 px-4 py-3 backdrop-blur-sm">
@@ -142,7 +142,7 @@ export default function AdminLayout() {
                 className={({ isActive }) =>
                   `nav-link flex items-center gap-3 rounded-2xl border px-3 py-3.5 text-sm transition-all ${
                     isActive
-                      ? 'border-teal-400/20 bg-[linear-gradient(135deg,rgba(15,118,110,0.95),rgba(17,94,89,0.95))] text-white shadow-[0_14px_28px_rgba(15,118,110,0.24)]'
+                      ? 'border-blue-400/20 bg-[linear-gradient(135deg,rgba(37,99,235,0.95),rgba(29,78,216,0.95))] text-white shadow-[0_14px_28px_rgba(37,99,235,0.24)]'
                       : 'border-transparent text-slate-300 hover:border-slate-700/80 hover:bg-slate-800/45 hover:text-white'
                   }`
                 }
@@ -160,7 +160,7 @@ export default function AdminLayout() {
           <div className="border-t border-slate-800 bg-[linear-gradient(180deg,rgba(15,23,42,0.16),rgba(15,23,42,0.36))] px-4 py-5">
             <div className="rounded-2xl border border-slate-700/80 bg-white/5 px-4 py-4">
               <div className="mb-4 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#0f766e,#2dd4bf)] text-sm font-bold text-white shadow-inner">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#2563eb,#60a5fa)] text-sm font-bold text-white shadow-inner">
                   {adminName[0] || 'A'}
                 </div>
                 <div className="min-w-0">

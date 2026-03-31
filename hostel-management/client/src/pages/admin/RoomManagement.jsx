@@ -140,7 +140,7 @@ export default function RoomManagement() {
               const colorClass = color === 'green'
                 ? 'text-green-600'
                 : color === 'teal'
-                  ? 'text-teal-600'
+                  ? 'text-blue-600'
                   : color === 'red'
                     ? 'text-red-600'
                     : 'text-yellow-600';

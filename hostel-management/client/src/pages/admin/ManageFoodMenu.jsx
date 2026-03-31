@@ -161,7 +161,7 @@ export default function ManageFoodMenu() {
                   {menu.isVeg && <span className="mt-1 inline-flex bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full">{vegBadge} Veg</span>}
                 </div>
                 <div className="flex items-center gap-4">
-                  <button type="button" className="text-sm font-medium text-teal-600 hover:text-teal-700" onClick={() => handleEdit(menu)}>Edit</button>
+                  <button type="button" className="text-sm font-medium text-blue-600 hover:text-blue-700" onClick={() => handleEdit(menu)}>Edit</button>
                   <button type="button" className="text-sm font-medium text-rose-600 hover:text-rose-700" onClick={() => handleDelete(menu.id)}>Delete</button>
                 </div>
               </div>

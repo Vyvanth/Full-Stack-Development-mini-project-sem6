@@ -8,10 +8,10 @@ import feeIcon from '../../assets/icons/fee.png';
 import complaintIcon from '../../assets/icons/complaint.png';
 
 const statColorClasses = {
-  blue: 'text-teal-600',
+  blue: 'text-blue-600',
   slate: 'text-slate-800',
   amber: 'text-amber-600',
-  violet: 'text-cyan-600',
+  violet: 'text-indigo-600',
   green: 'text-emerald-600',
 };
 
@@ -73,7 +73,7 @@ export default function AdminDashboard() {
       <section className="rounded-[32px] border border-slate-200 bg-white px-7 py-7 shadow-[0_18px_40px_rgba(15,23,42,0.06)]">
         <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-teal-700">Administration</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-blue-700">Administration</p>
             <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">Operations Dashboard</h1>
             <p className="mt-2 max-w-2xl text-sm text-slate-500">
               Monitor room availability, student support activity, finance, and pending approvals from one central workspace.
@@ -109,7 +109,7 @@ export default function AdminDashboard() {
               <h2 className="text-lg font-semibold text-slate-900">Room Status Breakdown</h2>
               <p className="mt-1 text-sm text-slate-500">Live overview of room allocation status across the hostel.</p>
             </div>
-            <Link to="/admin/rooms" className="text-sm font-medium text-teal-700 hover:text-teal-800">
+            <Link to="/admin/rooms" className="text-sm font-medium text-blue-700 hover:text-blue-800">
               Open rooms
             </Link>
           </div>

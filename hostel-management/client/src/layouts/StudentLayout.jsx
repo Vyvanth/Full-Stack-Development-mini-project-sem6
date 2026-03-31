@@ -126,7 +126,7 @@ export default function StudentLayout() {
             <BrandMark compact />
             <div>
               <h1 className="text-lg font-bold text-primary-700 tracking-tight">Campus Nest</h1>
-              <p className="text-[11px] uppercase tracking-[0.22em] text-teal-600 mt-0.5">Student Portal</p>
+              <p className="text-[11px] uppercase tracking-[0.22em] text-blue-600 mt-0.5">Student Portal</p>
             </div>
           </div>
           <div className="mt-5 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">

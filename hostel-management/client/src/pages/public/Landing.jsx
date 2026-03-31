@@ -26,7 +26,7 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900">
       <section className="relative overflow-hidden bg-[linear-gradient(180deg,#18212d_0%,#1f2a37_100%)] text-white">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(45,212,191,0.14),transparent_28%),radial-gradient(circle_at_top_right,rgba(148,163,184,0.12),transparent_24%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.14),transparent_28%),radial-gradient(circle_at_top_right,rgba(148,163,184,0.12),transparent_24%)]" />
 
         <nav className="relative mx-auto flex max-w-5xl items-center justify-between px-6 py-6 lg:px-8">
           <div className="flex items-center gap-3">
