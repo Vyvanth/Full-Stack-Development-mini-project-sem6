@@ -1,11 +1,11 @@
-﻿const TONES = {
+const TONES = {
   slate: 'bg-slate-100 text-slate-700',
-  blue: 'bg-blue-100 text-blue-700',
+  blue: 'bg-teal-100 text-teal-700',
   green: 'bg-emerald-100 text-emerald-700',
   amber: 'bg-amber-100 text-amber-700',
   red: 'bg-rose-100 text-rose-700',
-  violet: 'bg-violet-100 text-violet-700',
-  indigo: 'bg-indigo-100 text-indigo-700',
+  violet: 'bg-cyan-100 text-cyan-700',
+  indigo: 'bg-teal-50 text-teal-700',
 };
 
 export default function UiIcon({ label, tone = 'slate', size = 'md', dark = false }) {
@@ -26,4 +26,3 @@ export default function UiIcon({ label, tone = 'slate', size = 'md', dark = fals
     </span>
   );
 }
-

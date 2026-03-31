@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import api from '../../api/client';
 import toast from 'react-hot-toast';
 
-const STATUS_COLORS = { AVAILABLE: 'green', OCCUPIED: 'blue', FULL: 'red', MAINTENANCE: 'yellow' };
+const STATUS_COLORS = { AVAILABLE: 'green', OCCUPIED: 'teal', FULL: 'red', MAINTENANCE: 'yellow' };
 
 export default function RoomManagement() {
   const [rooms, setRooms] = useState([]);
@@ -139,8 +139,8 @@ export default function RoomManagement() {
               const count = rooms.filter(r => r.status === status).length;
               const colorClass = color === 'green'
                 ? 'text-green-600'
-                : color === 'blue'
-                  ? 'text-blue-600'
+                : color === 'teal'
+                  ? 'text-teal-600'
                   : color === 'red'
                     ? 'text-red-600'
                     : 'text-yellow-600';

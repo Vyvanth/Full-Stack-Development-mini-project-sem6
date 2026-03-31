@@ -1,7 +1,22 @@
-import { useState, useEffect } from 'react';
+ï»¿import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api/client';
 import UiIcon from '../../components/UiIcon';
+import roomIcon from '../../assets/icons/room.png';
+import feeIcon from '../../assets/icons/fee.png';
+import complaintIcon from '../../assets/icons/complaint.png';
+import foodIcon from '../../assets/icons/food.png';
+import laundryIcon from '../../assets/icons/laundry.png';
+
+const DashboardIcon = ({ src, alt, size = 'sm' }) => {
+  const classes = size === 'md' ? 'h-12 w-12 rounded-2xl p-2.5' : 'h-10 w-10 rounded-xl p-2';
+
+  return (
+    <div className={`flex shrink-0 items-center justify-center border border-slate-200 bg-white shadow-sm ${classes}`}>
+      <img src={src} alt={alt} className="h-full w-full object-contain" />
+    </div>
+  );
+};
 
 const StatCard = ({ label, value, sub, color = 'blue', link, icon, tone = 'slate' }) => (
   <Link to={link || '#'} className="card p-5 hover:shadow-xl hover:-translate-y-0.5 transition-all block bg-[linear-gradient(160deg,#ffffff,rgba(248,250,252,0.92))] border-sky-100">
@@ -11,7 +26,7 @@ const StatCard = ({ label, value, sub, color = 'blue', link, icon, tone = 'slate
         <p className={`text-2xl font-bold mt-1 text-${color}-600`}>{value}</p>
         {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
       </div>
-      <UiIcon label={icon} size="md" tone={tone} />
+      {typeof icon === 'string' ? <UiIcon label={icon} size="md" tone={tone} /> : <DashboardIcon src={icon.src} alt={icon.alt} size="md" />}
     </div>
   </Link>
 );
@@ -39,7 +54,7 @@ export default function StudentDashboard() {
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-500">Campus Living Snapshot</p>
             <h1 className="mt-3 text-3xl font-bold text-slate-800">Good day, {firstName}</h1>
-            <p className="text-slate-500 text-sm mt-2">{profile?.rollNumber} · {profile?.course} · {profile?.branch}</p>
+            <p className="text-slate-500 text-sm mt-2">{profile?.rollNumber} Â· {profile?.course} Â· {profile?.branch}</p>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {[
@@ -57,9 +72,9 @@ export default function StudentDashboard() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard label="My Room" value={profile?.roomAllocation?.room?.roomNumber || 'Not Assigned'} sub={profile?.roomAllocation ? `Block ${profile.roomAllocation.room.block}, Floor ${profile.roomAllocation.room.floor}` : 'Contact admin'} color="primary" tone="indigo" link="/student/room" icon={'\u{1F6CF}\uFE0F'} />
-        <StatCard label="Pending Payments" value={pendingPayments} sub="Tap to pay now" color={pendingPayments > 0 ? 'red' : 'green'} tone={pendingPayments > 0 ? 'red' : 'green'} link="/student/payments" icon={'\u{1F4B3}'} />
-        <StatCard label="Open Complaints" value={openComplaints} sub={openComplaints > 0 ? 'Being processed' : 'All resolved'} color={openComplaints > 0 ? 'yellow' : 'green'} tone={openComplaints > 0 ? 'amber' : 'green'} link="/student/complaints" icon={'\u{1F9FE}'} />
+        <StatCard label="My Room" value={profile?.roomAllocation?.room?.roomNumber || 'Not Assigned'} sub={profile?.roomAllocation ? `Block ${profile.roomAllocation.room.block}, Floor ${profile.roomAllocation.room.floor}` : 'Contact admin'} color="primary" tone="indigo" link="/student/room" icon={{ src: roomIcon, alt: 'My room' }} />
+        <StatCard label="Pending Payments" value={pendingPayments} sub="Tap to pay now" color={pendingPayments > 0 ? 'red' : 'green'} tone={pendingPayments > 0 ? 'red' : 'green'} link="/student/payments" icon={{ src: feeIcon, alt: 'Pending payments' }} />
+        <StatCard label="Open Complaints" value={openComplaints} sub={openComplaints > 0 ? 'Being processed' : 'All resolved'} color={openComplaints > 0 ? 'yellow' : 'green'} tone={openComplaints > 0 ? 'amber' : 'green'} link="/student/complaints" icon={{ src: complaintIcon, alt: 'Open complaints' }} />
         <StatCard label="My Profile" value="View" sub="Manage your details" color="slate" tone="slate" link="/student/profile" icon={'\u{1F464}'} />
       </div>
 
@@ -68,13 +83,13 @@ export default function StudentDashboard() {
         {[
           { to: '/student/out-pass', icon: '\u{1FAAA}', label: 'Apply Out Pass' },
           { to: '/student/home-pass', icon: '\u{1F3E0}', label: 'Apply Home Pass' },
-          { to: '/student/food', icon: '\u{1F37D}\uFE0F', label: 'View Food Menu' },
-          { to: '/student/laundry', icon: '\u{1F9FA}', label: 'Laundry Request' },
-          { to: '/student/complaints', icon: '\u{1F9FE}', label: 'File Complaint' },
-          { to: '/student/payments', icon: '\u{1F4B3}', label: 'Make Payment' },
+          { to: '/student/food', icon: { src: foodIcon, alt: 'View food menu' }, label: 'View Food Menu' },
+          { to: '/student/laundry', icon: { src: laundryIcon, alt: 'Laundry request' }, label: 'Laundry Request' },
+          { to: '/student/complaints', icon: { src: complaintIcon, alt: 'File complaint' }, label: 'File Complaint' },
+          { to: '/student/payments', icon: { src: feeIcon, alt: 'Make payment' }, label: 'Make Payment' },
         ].map(({ to, icon, label }) => (
           <Link key={to} to={to} className="card p-4 flex items-center gap-3 hover:shadow-lg hover:-translate-y-0.5 transition-all bg-[linear-gradient(160deg,#ffffff,rgba(240,249,255,0.75))] border-sky-100">
-            <UiIcon label={icon} size="sm" tone="blue" />
+            {typeof icon === 'string' ? <UiIcon label={icon} size="sm" tone="blue" /> : <DashboardIcon src={icon.src} alt={icon.alt} />}
             <span className="text-sm font-medium text-slate-700">{label}</span>
           </Link>
         ))}

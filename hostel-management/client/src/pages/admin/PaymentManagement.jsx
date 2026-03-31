@@ -362,7 +362,7 @@ export default function PaymentManagement() {
                       <td className="px-4 py-3">
                         <div className="flex gap-2">
                           <button onClick={() => startEdit(f)}
-                            className="text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 font-medium px-3 py-1 rounded-lg transition-colors">
+                            className="text-xs bg-teal-100 text-teal-700 hover:bg-teal-200 font-medium px-3 py-1 rounded-lg transition-colors">
                             Edit
                           </button>
                           <button onClick={() => openConfirm({
