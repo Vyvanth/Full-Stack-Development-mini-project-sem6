@@ -46,7 +46,7 @@
 
 /* Sidebar active link */
 .nav-link.active {
-  @apply bg-primary-50 text-primary-700 font-semibold;
+  @apply bg-slate-100 text-slate-800 font-semibold;
 }
 
 /* Scrollbar */

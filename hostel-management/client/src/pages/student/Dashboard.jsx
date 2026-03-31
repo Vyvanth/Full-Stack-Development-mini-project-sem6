@@ -48,7 +48,7 @@ export default function StudentDashboard() {
 
   return (
     <div>
-      <div className="mb-8 rounded-[28px] border border-sky-100 bg-[radial-gradient(circle_at_top_left,rgba(125,211,252,0.35),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(186,230,253,0.55),transparent_28%),linear-gradient(135deg,#ffffff,#eff6ff)] px-7 py-7 shadow-[0_24px_60px_rgba(14,116,144,0.08)]">
+      <div className="mb-8 rounded-[28px] border border-slate-200 bg-white px-7 py-7 shadow-sm">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-500">Campus Living Snapshot</p>

@@ -46,9 +46,9 @@ export default function StudentLayout() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[linear-gradient(180deg,#f4f8f8_0%,#eef5f4_48%,#f8fafc_100%)]">
-      <aside className="w-72 bg-white border-r border-teal-100 flex flex-col shadow-[0_0_0_1px_rgba(153,246,228,0.35),0_24px_60px_rgba(15,23,42,0.08)] flex-shrink-0 relative z-10">
-        <div className="px-6 py-6 border-b border-teal-100 bg-[radial-gradient(circle_at_top_left,rgba(153,246,228,0.7),transparent_58%),linear-gradient(135deg,#ffffff,rgba(240,253,250,0.96))]">
+    <div className="flex h-screen overflow-hidden bg-slate-50">
+      <aside className="w-72 bg-white border-r border-slate-200 flex flex-col shadow-sm flex-shrink-0 relative z-10">
+        <div className="px-6 py-6 border-b border-slate-200 bg-white">
           <div className="flex items-center gap-3">
             <BrandMark compact />
             <div>
@@ -56,14 +56,14 @@ export default function StudentLayout() {
               <p className="text-[11px] uppercase tracking-[0.22em] text-teal-600 mt-0.5">Student Portal</p>
             </div>
           </div>
-          <div className="mt-5 rounded-2xl border border-teal-100 bg-white px-4 py-3 shadow-[0_10px_30px_rgba(13,148,136,0.08)]">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-600">Welcome Back</p>
+          <div className="mt-5 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Welcome Back</p>
             <p className="mt-1 text-base font-semibold text-slate-800">{firstName}</p>
             <p className="text-xs text-slate-400 mt-1">{user?.student?.rollNumber || 'Student Portal'}</p>
           </div>
         </div>
 
-        <nav className="flex-1 px-4 py-5 space-y-1 overflow-y-auto bg-[linear-gradient(180deg,#ffffff_0%,#f7fbfa_100%)]">
+        <nav className="flex-1 px-4 py-5 space-y-1 overflow-y-auto bg-white">
           {navItems.map(({ to, label, icon, end }) => (
             <NavLink
               key={to}
@@ -71,7 +71,7 @@ export default function StudentLayout() {
               end={end}
               className={({ isActive }) =>
                 `nav-link flex items-center gap-3 px-3 py-3 rounded-2xl text-sm transition-all ${
-                  isActive ? 'active shadow-sm' : 'text-slate-600 hover:bg-teal-50 hover:text-teal-700'
+                  isActive ? 'active shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
                 }`
               }
             >
@@ -81,10 +81,10 @@ export default function StudentLayout() {
           ))}
         </nav>
 
-        <div className="px-4 py-5 border-t border-teal-100 bg-white">
-          <div className="rounded-2xl border border-teal-100 bg-[linear-gradient(135deg,#ffffff,#f0fdfa)] px-4 py-4 shadow-[0_12px_30px_rgba(13,148,136,0.08)]">
+        <div className="px-4 py-5 border-t border-slate-200 bg-white">
+          <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-2xl bg-[linear-gradient(135deg,#ccfbf1,#99f6e4)] flex items-center justify-center text-primary-700 font-bold text-sm shadow-inner">
+              <div className="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-700 font-bold text-sm">
                 {studentName[0] || 'S'}
               </div>
               <div className="min-w-0">
