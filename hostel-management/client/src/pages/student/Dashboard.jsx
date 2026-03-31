@@ -18,6 +18,41 @@ const DashboardIcon = ({ src, alt, size = 'sm' }) => {
   );
 };
 
+const QuickActionGlyph = ({ type }) => {
+  const shared = {
+    className: `h-4 w-4 shrink-0 ${type === 'outPass' ? 'text-sky-600' : 'text-emerald-600'}`,
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: '1.8',
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round',
+    viewBox: '0 0 24 24',
+    'aria-hidden': 'true',
+  };
+
+  if (type === 'outPass') {
+    return (
+      <svg {...shared}>
+        <path d="M10 17l5-5-5-5" />
+        <path d="M15 12H4" />
+        <path d="M14 5h4a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-4" />
+      </svg>
+    );
+  }
+
+  if (type === 'homePass') {
+    return (
+      <svg {...shared}>
+        <path d="M4 11.5 12 5l8 6.5" />
+        <path d="M6 10.5V19h12v-8.5" />
+        <path d="M10 19v-4.5h4V19" />
+      </svg>
+    );
+  }
+
+  return null;
+};
+
 const StatCard = ({ label, value, sub, color = 'blue', link }) => (
   <Link to={link || '#'} className="card p-5 hover:shadow-xl hover:-translate-y-0.5 transition-all block bg-[linear-gradient(160deg,#ffffff,rgba(248,250,252,0.92))] border-sky-100">
     <div>
@@ -80,15 +115,21 @@ export default function StudentDashboard() {
       <h2 className="text-sm font-semibold text-sky-500 uppercase tracking-[0.2em] mb-3">Quick Actions</h2>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {[
-          { to: '/student/out-pass', icon: '\u{1FAAA}', label: 'Apply Out Pass' },
-          { to: '/student/home-pass', icon: '\u{1F3E0}', label: 'Apply Home Pass' },
+          { to: '/student/out-pass', icon: 'outPass', label: 'Apply Out Pass' },
+          { to: '/student/home-pass', icon: 'homePass', label: 'Apply Home Pass' },
           { to: '/student/food', icon: { src: foodIcon, alt: 'View food menu' }, label: 'View Food Menu' },
           { to: '/student/laundry', icon: { src: laundryIcon, alt: 'Laundry request' }, label: 'Laundry Request' },
           { to: '/student/complaints', icon: { src: complaintIcon, alt: 'File complaint' }, label: 'File Complaint' },
           { to: '/student/payments', icon: { src: feeIcon, alt: 'Make payment' }, label: 'Make Payment' },
         ].map(({ to, icon, label }) => (
           <Link key={to} to={to} className="card p-4 flex items-center gap-3 hover:shadow-lg hover:-translate-y-0.5 transition-all bg-[linear-gradient(160deg,#ffffff,rgba(240,249,255,0.75))] border-sky-100">
-            {typeof icon === 'string' ? <UiIcon label={icon} size="sm" tone="blue" /> : <DashboardIcon src={icon.src} alt={icon.alt} />}
+            {typeof icon === 'string' ? (
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white shadow-sm">
+                <QuickActionGlyph type={icon} />
+              </span>
+            ) : (
+              <DashboardIcon src={icon.src} alt={icon.alt} />
+            )}
             <span className="text-sm font-medium text-slate-700">{label}</span>
           </Link>
         ))}
