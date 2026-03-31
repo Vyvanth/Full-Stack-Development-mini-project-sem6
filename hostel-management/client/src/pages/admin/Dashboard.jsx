@@ -96,11 +96,11 @@ export default function AdminDashboard() {
       </section>
 
       <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
-        <Stat label="Students" value={stats.totalStudents}  tone="blue" color="blue" to="/admin/students" helper="Registered residents" />
-        <Stat label="Rooms" value={stats.totalRooms}  color="slate" to="/admin/rooms" helper="Across active hostel blocks" />
-        <Stat label="Complaints" value={stats.pendingComplaints}  color="amber" to="/admin/complaints" helper="Needs review" />
-        <Stat label="Pass Requests" value={stats.pendingPassRequests}  tone="violet" color="violet" to="/admin/passes" helper="Awaiting decisions" />
-        <Stat label="Revenue" value={revenue}  color="green" to="/admin/payments" helper="Collected fee payments" />
+        <Stat label="Students" value={stats.totalStudents} icon={'\u{1F393}'} tone="blue" color="blue" to="/admin/students" helper="Registered residents" />
+        <Stat label="Rooms" value={stats.totalRooms} icon={{ src: roomIcon, alt: 'Room management' }} color="slate" to="/admin/rooms" helper="Across active hostel blocks" />
+        <Stat label="Complaints" value={stats.pendingComplaints} icon={{ src: complaintIcon, alt: 'Complaint tracking' }} color="amber" to="/admin/complaints" helper="Needs review" />
+        <Stat label="Pass Requests" value={stats.pendingPassRequests} icon={'\u{1FAAA}'} tone="violet" color="violet" to="/admin/passes" helper="Awaiting decisions" />
+        <Stat label="Revenue" value={revenue} icon={{ src: feeIcon, alt: 'Fee payments' }} color="green" to="/admin/payments" helper="Collected fee payments" />
       </section>
 
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.5fr_1fr]">
