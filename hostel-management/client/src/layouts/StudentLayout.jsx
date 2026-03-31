@@ -2,35 +2,108 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import BrandMark from '../components/BrandMark';
-import UiIcon from '../components/UiIcon';
-import roomIcon from '../assets/icons/room.png';
-import feeIcon from '../assets/icons/fee.png';
-import complaintIcon from '../assets/icons/complaint.png';
-import foodIcon from '../assets/icons/food.png';
-import laundryIcon from '../assets/icons/laundry.png';
 
 const navItems = [
-  { to: '/student', label: 'Dashboard', icon: '\u{1F4CA}', end: true },
-  { to: '/student/room', label: 'My Room', icon: { src: roomIcon, alt: 'My room' } },
-  { to: '/student/complaints', label: 'Complaints', icon: { src: complaintIcon, alt: 'Complaints' } },
-  { to: '/student/payments', label: 'Payments', icon: { src: feeIcon, alt: 'Payments' } },
-  { to: '/student/food', label: 'Food Menu', icon: { src: foodIcon, alt: 'Food menu' } },
-  { to: '/student/laundry', label: 'Laundry', icon: { src: laundryIcon, alt: 'Laundry' } },
-  { to: '/student/out-pass', label: 'Out Pass', icon: '\u{1FAAA}' },
-  { to: '/student/home-pass', label: 'Home Pass', icon: '\u{1F3E0}' },
-  { to: '/student/profile', label: 'Profile', icon: '\u{1F464}' },
+  { to: '/student', label: 'Dashboard', icon: 'dashboard', end: true },
+  { to: '/student/room', label: 'My Room', icon: 'rooms' },
+  { to: '/student/complaints', label: 'Complaints', icon: 'complaints' },
+  { to: '/student/payments', label: 'Payments', icon: 'payments' },
+  { to: '/student/food', label: 'Food Menu', icon: 'food' },
+  { to: '/student/laundry', label: 'Laundry', icon: 'laundry' },
+  { to: '/student/out-pass', label: 'Out Pass', icon: 'outPass' },
+  { to: '/student/home-pass', label: 'Home Pass', icon: 'homePass' },
+  { to: '/student/profile', label: 'Profile', icon: 'profile' },
 ];
 
-const SidebarIcon = ({ item }) => {
-  if (typeof item === 'string') {
-    return <UiIcon label={item} size="sm" tone="slate" />;
-  }
+const SidebarIcon = ({ item, active = false }) => {
+  const iconClass = active ? 'text-slate-800' : 'text-slate-400';
+  const shared = {
+    className: `h-[18px] w-[18px] shrink-0 ${iconClass}`,
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: '1.8',
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round',
+    viewBox: '0 0 24 24',
+    'aria-hidden': 'true',
+  };
 
-  return (
-    <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-teal-100 bg-white shadow-sm">
-      <img src={item.src} alt={item.alt} className="h-5 w-5 object-contain" />
-    </div>
-  );
+  switch (item) {
+    case 'dashboard':
+      return (
+        <svg {...shared}>
+          <path d="M4 13h7V4H4zM13 20h7v-9h-7zM13 4h7v5h-7zM4 20h7v-5H4z" />
+        </svg>
+      );
+    case 'rooms':
+      return (
+        <svg {...shared}>
+          <path d="M3 21V8l9-5 9 5v13" />
+          <path d="M9 21v-6h6v6" />
+          <path d="M9 10h.01M15 10h.01" />
+        </svg>
+      );
+    case 'complaints':
+      return (
+        <svg {...shared}>
+          <path d="M8 3h8l3 3v15H5V3z" />
+          <path d="M13 3v4h4" />
+          <path d="M9 12h6M9 16h6" />
+        </svg>
+      );
+    case 'payments':
+      return (
+        <svg {...shared}>
+          <rect x="3" y="6" width="18" height="12" rx="2" />
+          <path d="M3 10h18" />
+          <path d="M7 15h3" />
+        </svg>
+      );
+    case 'food':
+      return (
+        <svg {...shared}>
+          <path d="M4 3v7" />
+          <path d="M7 3v7" />
+          <path d="M4 7h3" />
+          <path d="M6 10v11" />
+          <path d="M14 3c0 4 3 4 3 8v10" />
+          <path d="M17 3v18" />
+        </svg>
+      );
+    case 'laundry':
+      return (
+        <svg {...shared}>
+          <rect x="4" y="3" width="16" height="18" rx="2" />
+          <circle cx="12" cy="13" r="4" />
+          <path d="M8 7h.01M12 7h.01M16 7h.01" />
+        </svg>
+      );
+    case 'outPass':
+      return (
+        <svg {...shared}>
+          <path d="M10 17l5-5-5-5" />
+          <path d="M15 12H3" />
+          <path d="M14 5h4a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-4" />
+        </svg>
+      );
+    case 'homePass':
+      return (
+        <svg {...shared}>
+          <path d="M3 11.5 12 4l9 7.5" />
+          <path d="M5 10.5V20h14v-9.5" />
+          <path d="M10 20v-5h4v5" />
+        </svg>
+      );
+    case 'profile':
+      return (
+        <svg {...shared}>
+          <path d="M20 21a8 8 0 0 0-16 0" />
+          <circle cx="12" cy="8" r="4" />
+        </svg>
+      );
+    default:
+      return null;
+  }
 };
 
 export default function StudentLayout() {
@@ -75,8 +148,12 @@ export default function StudentLayout() {
                 }`
               }
             >
-              <SidebarIcon item={icon} />
-              <span className="font-medium">{label}</span>
+              {({ isActive }) => (
+                <>
+                  <SidebarIcon item={icon} active={isActive} />
+                  <span className="font-medium">{label}</span>
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
