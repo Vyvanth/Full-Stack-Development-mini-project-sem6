@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import api from '../../api/client';
 import toast from 'react-hot-toast';
+import ConfirmDialog from '../../components/ConfirmDialog';
 
 const STATUS_COLORS = { AVAILABLE: 'green', OCCUPIED: 'teal', FULL: 'red', MAINTENANCE: 'yellow' };
 
@@ -13,6 +14,7 @@ export default function RoomManagement() {
   const [alloc, setAlloc] = useState({ studentId: '', roomId: '' });
   const [roomErrors, setRoomErrors] = useState({});
   const [allocErrors, setAllocErrors] = useState({});
+  const [vacateTarget, setVacateTarget] = useState(null);
 
   const fetchRooms = () => api.get('/rooms').then(({ data }) => setRooms(data.rooms));
   const fetchStudents = () => api.get('/students?limit=100').then(({ data }) => setStudents(data.students));
@@ -67,10 +69,12 @@ export default function RoomManagement() {
     catch (err) { toast.error(err.response?.data?.error || 'Allocation failed'); }
   };
 
-  const handleDeallocate = async (studentId) => {
+  const handleDeallocate = async () => {
+    if (!vacateTarget?.studentId) return;
     try {
-      await api.delete(`/rooms/deallocate/${studentId}`);
+      await api.delete(`/rooms/deallocate/${vacateTarget.studentId}`);
       toast.success('Room deallocated');
+      setVacateTarget(null);
       fetchRooms();
       fetchStudents();
       const selected = students.find((student) => student.id === alloc.studentId);
@@ -170,8 +174,12 @@ export default function RoomManagement() {
                       <button
                         key={allocation.id}
                         type="button"
-                        className="text-xs font-medium text-rose-600 hover:text-rose-700"
-                        onClick={() => handleDeallocate(allocation.student.id)}
+                        className="inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700 transition-colors hover:border-rose-300 hover:bg-rose-100"
+                        onClick={() => setVacateTarget({
+                          studentId: allocation.student.id,
+                          studentName: allocation.student.fullName,
+                          roomNumber: r.roomNumber,
+                        })}
                       >
                         Vacate {allocation.student.fullName}
                       </button>
@@ -185,6 +193,16 @@ export default function RoomManagement() {
           ))}</tbody>
         </table>
       </div>
+      <ConfirmDialog
+        open={Boolean(vacateTarget)}
+        title="Vacate this room allocation?"
+        description={vacateTarget ? `${vacateTarget.studentName} will be removed from room ${vacateTarget.roomNumber}.` : ''}
+        confirmText="Yes, vacate"
+        cancelText="Keep allocation"
+        confirmTone="danger"
+        onClose={() => setVacateTarget(null)}
+        onConfirm={handleDeallocate}
+      />
     </div>
   );
 }

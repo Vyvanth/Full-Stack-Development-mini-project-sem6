@@ -54,12 +54,16 @@ const QuickActionGlyph = ({ type }) => {
 };
 
 const StatCard = ({ label, value, sub, color = 'blue', link }) => (
-  <Link to={link || '#'} className="card p-5 hover:shadow-xl hover:-translate-y-0.5 transition-all block bg-[linear-gradient(160deg,#ffffff,rgba(248,250,252,0.92))] border-sky-100">
-    <div>
+  <Link
+    to={link || '#'}
+    className="group relative block overflow-hidden rounded-[28px] border border-sky-100 bg-[linear-gradient(160deg,#ffffff,rgba(248,250,252,0.94))] p-5 shadow-[0_16px_36px_rgba(15,23,42,0.06)] transition-all hover:-translate-y-1 hover:shadow-[0_20px_44px_rgba(14,165,233,0.12)]"
+  >
+    <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,rgba(59,130,246,0.95),rgba(56,189,248,0.55))]" />
+    <div className="relative">
       <div>
-        <p className="text-xs font-semibold text-sky-500 uppercase tracking-[0.18em]">{label}</p>
-        <p className={`text-2xl font-bold mt-1 text-${color}-600`}>{value}</p>
-        {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-600">{label}</p>
+        <p className={`mt-3 text-3xl font-bold text-${color}-600`}>{value}</p>
+        {sub && <p className="mt-2 text-sm text-slate-500">{sub}</p>}
       </div>
     </div>
   </Link>
@@ -82,13 +86,12 @@ export default function StudentDashboard() {
   const firstName = profile?.fullName?.split(' ')[0] || 'Student';
 
   return (
-    <div>
-      <div className="mb-8 rounded-[28px] border border-slate-200 bg-white px-7 py-7 shadow-sm">
+    <div className="space-y-8">
+      <div className="rounded-[32px] border border-slate-200 bg-white px-7 py-8 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-500">Campus Living Snapshot</p>
-            <h1 className="mt-3 text-3xl font-bold text-slate-800">Good day, {firstName}</h1>
-            <p className="text-slate-500 text-sm mt-2">{profile?.rollNumber} · {profile?.course} · {profile?.branch}</p>
+            <h1 className="text-4xl font-bold tracking-tight text-slate-900">Good day, {firstName}</h1>
+            <p className="mt-3 max-w-2xl text-base text-slate-600">{profile?.rollNumber} · {profile?.course} · {profile?.branch}</p>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {[
@@ -96,49 +99,66 @@ export default function StudentDashboard() {
               ['Pending Fees', pendingPayments > 0 ? `${pendingPayments} due` : 'All clear'],
               ['Support Desk', openComplaints > 0 ? `${openComplaints} open` : 'No issues'],
             ].map(([label, value]) => (
-              <div key={label} className="rounded-2xl border border-white/80 bg-white/75 px-4 py-3 shadow-sm">
+              <div key={label} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">{label}</p>
-                <p className="mt-1 text-sm font-semibold text-slate-700">{value}</p>
+                <p className="mt-2 text-base font-semibold text-slate-800">{value}</p>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="My Room" value={profile?.roomAllocation?.room?.roomNumber || 'Not Assigned'} sub={profile?.roomAllocation ? `Block ${profile.roomAllocation.room.block}, Floor ${profile.roomAllocation.room.floor}` : 'Contact admin'} color="primary" link="/student/room" />
         <StatCard label="Pending Payments" value={pendingPayments} sub="Tap to pay now" color={pendingPayments > 0 ? 'red' : 'green'} link="/student/payments" />
         <StatCard label="Open Complaints" value={openComplaints} sub={openComplaints > 0 ? 'Being processed' : 'All resolved'} color={openComplaints > 0 ? 'yellow' : 'green'} link="/student/complaints" />
         <StatCard label="My Profile" value="View" sub="Manage your details" color="slate" link="/student/profile" />
       </div>
 
-      <h2 className="text-sm font-semibold text-sky-500 uppercase tracking-[0.2em] mb-3">Quick Actions</h2>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        {[
-          { to: '/student/out-pass', icon: 'outPass', label: 'Apply Out Pass' },
-          { to: '/student/home-pass', icon: 'homePass', label: 'Apply Home Pass' },
-          { to: '/student/food', icon: { src: foodIcon, alt: 'View food menu' }, label: 'View Food Menu' },
-          { to: '/student/laundry', icon: { src: laundryIcon, alt: 'Laundry request' }, label: 'Laundry Request' },
-          { to: '/student/complaints', icon: { src: complaintIcon, alt: 'File complaint' }, label: 'File Complaint' },
-          { to: '/student/payments', icon: { src: feeIcon, alt: 'Make payment' }, label: 'Make Payment' },
-        ].map(({ to, icon, label }) => (
-          <Link key={to} to={to} className="card p-4 flex items-center gap-3 hover:shadow-lg hover:-translate-y-0.5 transition-all bg-[linear-gradient(160deg,#ffffff,rgba(240,249,255,0.75))] border-sky-100">
-            {typeof icon === 'string' ? (
-              <span className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white shadow-sm">
-                <QuickActionGlyph type={icon} />
-              </span>
-            ) : (
-              <DashboardIcon src={icon.src} alt={icon.alt} />
-            )}
-            <span className="text-sm font-medium text-slate-700">{label}</span>
-          </Link>
-        ))}
-      </div>
+      <section>
+        <div className="mb-4 flex items-end justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-600">Quick Actions</h2>
+            <p className="mt-2 text-sm text-slate-500">Jump to the tasks you use most throughout the day.</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {[
+            { to: '/student/out-pass', icon: 'outPass', label: 'Apply Out Pass', desc: 'Plan a short leave request for today.' },
+            { to: '/student/home-pass', icon: 'homePass', label: 'Apply Home Pass', desc: 'Request overnight or multi-day leave.' },
+            { to: '/student/food', icon: { src: foodIcon, alt: 'View food menu' }, label: 'View Food Menu', desc: 'Check what is being served this week.' },
+            { to: '/student/laundry', icon: { src: laundryIcon, alt: 'Laundry request' }, label: 'Laundry Request', desc: 'Book pickup and track current laundry.' },
+            { to: '/student/complaints', icon: { src: complaintIcon, alt: 'File complaint' }, label: 'File Complaint', desc: 'Raise issues for room or facility support.' },
+            { to: '/student/payments', icon: { src: feeIcon, alt: 'Make payment' }, label: 'Make Payment', desc: 'Review pending dues and pay online.' },
+          ].map(({ to, icon, label, desc }) => (
+            <Link
+              key={to}
+              to={to}
+              className="group flex items-start gap-4 rounded-[26px] border border-sky-100 bg-[linear-gradient(160deg,#ffffff,rgba(240,249,255,0.82))] px-5 py-5 shadow-[0_14px_32px_rgba(15,23,42,0.05)] transition-all hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(56,189,248,0.12)]"
+            >
+              {typeof icon === 'string' ? (
+                <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-sky-100 bg-white shadow-sm">
+                  <QuickActionGlyph type={icon} />
+                </span>
+              ) : (
+                <DashboardIcon src={icon.src} alt={icon.alt} />
+              )}
+              <div className="min-w-0">
+                <p className="text-lg font-semibold text-slate-800">{label}</p>
+                <p className="mt-2 text-sm leading-6 text-slate-500">{desc}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
 
       {profile?.complaints?.length > 0 && (
-        <div className="mt-8">
-          <h2 className="text-sm font-semibold text-sky-500 uppercase tracking-[0.2em] mb-3">Recent Complaints</h2>
-          <div className="card overflow-hidden border-sky-100">
+        <section>
+          <div className="mb-4">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-600">Recent Complaints</h2>
+            <p className="mt-2 text-sm text-slate-500">A quick look at the most recent support items linked to your account.</p>
+          </div>
+          <div className="overflow-hidden rounded-[28px] border border-sky-100 bg-white shadow-[0_16px_34px_rgba(15,23,42,0.05)]">
             <table className="w-full text-sm">
               <thead className="bg-sky-50/70 border-b border-sky-100">
                 <tr>
@@ -158,7 +178,7 @@ export default function StudentDashboard() {
               </tbody>
             </table>
           </div>
-        </div>
+        </section>
       )}
     </div>
   );

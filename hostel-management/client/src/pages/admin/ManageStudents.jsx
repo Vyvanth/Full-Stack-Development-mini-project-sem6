@@ -2,11 +2,13 @@
 import { useState, useEffect } from 'react';
 import api from '../../api/client';
 import toast from 'react-hot-toast';
+import ConfirmDialog from '../../components/ConfirmDialog';
 
 export default function ManageStudents() {
   const [students, setStudents] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const fetch = (q = '') => {
     setLoading(true);
@@ -15,11 +17,12 @@ export default function ManageStudents() {
 
   useEffect(() => { fetch(); }, []);
 
-  const handleDelete = async (id, name) => {
-    if (!confirm(`Delete student ${name}? This is irreversible.`)) return;
+  const handleDelete = async () => {
+    if (!deleteTarget?.id) return;
     try {
-      await api.delete(`/students/${id}`);
+      await api.delete(`/students/${deleteTarget.id}`);
       toast.success('Student deleted');
+      setDeleteTarget(null);
       fetch(search);
     } catch { toast.error('Delete failed'); }
   };
@@ -53,7 +56,13 @@ export default function ManageStudents() {
                   <td className="px-4 py-3">{s.roomAllocation?.room?.roomNumber || <span className="text-slate-300">-</span>}</td>
                   <td className="px-4 py-3 text-slate-500">{s.phone}</td>
                   <td className="px-4 py-3">
-                    <button onClick={() => handleDelete(s.id, s.fullName)} className="text-red-500 hover:text-red-700 text-xs font-medium">Delete</button>
+                    <button
+                      type="button"
+                      onClick={() => setDeleteTarget({ id: s.id, name: s.fullName })}
+                      className="inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700 transition-colors hover:border-rose-300 hover:bg-rose-100"
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -61,6 +70,16 @@ export default function ManageStudents() {
           </table>
         )}
       </div>
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="Delete student record?"
+        description={deleteTarget ? `${deleteTarget.name} will be removed permanently. This action cannot be undone.` : ''}
+        confirmText="Yes, delete"
+        cancelText="Keep student"
+        confirmTone="danger"
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

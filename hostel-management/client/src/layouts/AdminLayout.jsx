@@ -99,6 +99,22 @@ const SidebarIcon = ({ item, active = false }) => {
   }
 };
 
+const AdminAvatarIcon = () => (
+  <svg
+    className="h-5 w-5"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M12 3 4 7v6c0 5 3.4 7.8 8 8 4.6-.2 8-3 8-8V7l-8-4Z" />
+    <path d="M9.5 12.5 11 14l3.5-3.5" />
+  </svg>
+);
+
 export default function AdminLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -114,12 +130,12 @@ export default function AdminLayout() {
     <div className="flex h-screen overflow-hidden bg-[linear-gradient(180deg,#f3f7f7_0%,#edf2f2_100%)]">
       <aside className="w-72 flex-shrink-0 border-r border-slate-800 bg-[linear-gradient(180deg,#18222d_0%,#202c37_50%,#26343f_100%)] text-slate-200 shadow-[18px_0_40px_rgba(15,23,42,0.16)]">
         <div className="flex h-full flex-col">
-          <div className="border-b border-slate-800 bg-[radial-gradient(circle_at_top_left,rgba(20,184,166,0.22),transparent_36%),linear-gradient(180deg,rgba(24,34,45,0.98),rgba(24,34,45,0.92))] px-6 py-6">
+          <div className="border-b border-slate-800 bg-[linear-gradient(180deg,rgba(24,34,45,0.98),rgba(24,34,45,0.92))] px-6 py-6">
             <div className="flex items-center gap-3">
               <BrandMark compact dark />
               <div>
                 <h1 className="text-lg font-bold tracking-tight text-white">Campus Nest</h1>
-                <p className="mt-1 text-[11px] uppercase tracking-[0.22em] text-blue-300">Operations Console</p>
+                <p className="mt-1 text-[11px] uppercase tracking-[0.22em] text-slate-400">Operations Console</p>
               </div>
             </div>
             <div className="mt-5 rounded-2xl border border-slate-700/80 bg-white/5 px-4 py-3 backdrop-blur-sm">
@@ -160,8 +176,8 @@ export default function AdminLayout() {
           <div className="border-t border-slate-800 bg-[linear-gradient(180deg,rgba(15,23,42,0.16),rgba(15,23,42,0.36))] px-4 py-5">
             <div className="rounded-2xl border border-slate-700/80 bg-white/5 px-4 py-4">
               <div className="mb-4 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#2563eb,#60a5fa)] text-sm font-bold text-white shadow-inner">
-                  {adminName[0] || 'A'}
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#334155,#64748b)] text-white shadow-inner">
+                  <AdminAvatarIcon />
                 </div>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-white">{adminName}</p>

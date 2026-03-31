@@ -16,7 +16,7 @@ const navItems = [
 ];
 
 const SidebarIcon = ({ item, active = false }) => {
-  const iconClass = active ? 'text-slate-800' : 'text-slate-400';
+  const iconClass = active ? 'text-white' : 'text-slate-300';
   const shared = {
     className: `h-[18px] w-[18px] shrink-0 ${iconClass}`,
     fill: 'none',
@@ -119,57 +119,65 @@ export default function StudentLayout() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
-      <aside className="w-72 bg-white border-r border-slate-200 flex flex-col shadow-sm flex-shrink-0 relative z-10">
-        <div className="px-6 py-6 border-b border-slate-200 bg-white">
+    <div className="flex h-screen overflow-hidden bg-[linear-gradient(180deg,#f8fafc_0%,#f1f5f9_100%)]">
+      <aside className="relative z-10 flex w-72 flex-shrink-0 flex-col border-r border-slate-800 bg-[linear-gradient(180deg,#18212d_0%,#1f2a37_100%)] shadow-[18px_0_40px_rgba(15,23,42,0.14)]">
+        <div className="border-b border-slate-800 bg-[linear-gradient(180deg,rgba(24,33,45,0.98),rgba(31,42,55,0.95))] px-6 py-6">
           <div className="flex items-center gap-3">
-            <BrandMark compact />
+            <BrandMark compact dark />
             <div>
-              <h1 className="text-lg font-bold text-primary-700 tracking-tight">Campus Nest</h1>
-              <p className="text-[11px] uppercase tracking-[0.22em] text-blue-600 mt-0.5">Student Portal</p>
+              <h1 className="text-lg font-bold tracking-tight text-white">Campus Nest</h1>
+              <p className="mt-0.5 text-[11px] uppercase tracking-[0.22em] text-slate-300">Student Portal</p>
             </div>
           </div>
-          <div className="mt-5 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Welcome Back</p>
-            <p className="mt-1 text-base font-semibold text-slate-800">{firstName}</p>
-            <p className="text-xs text-slate-400 mt-1">{user?.student?.rollNumber || 'Student Portal'}</p>
+          <div className="mt-5 rounded-3xl border border-white/10 bg-white/8 px-4 py-4 shadow-[0_14px_32px_rgba(15,23,42,0.12)] backdrop-blur-sm">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">Welcome Back</p>
+            <p className="mt-2 text-xl font-semibold text-white">{firstName}</p>
+            <p className="mt-1 text-xs text-slate-300">{user?.student?.rollNumber || 'Student Portal'}</p>
           </div>
         </div>
 
-        <nav className="flex-1 px-4 py-5 space-y-1 overflow-y-auto bg-white">
+        <div className="px-6 pt-4">
+          <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Navigation</p>
+        </div>
+
+        <nav className="flex-1 space-y-2 overflow-y-auto bg-transparent px-4 py-5">
           {navItems.map(({ to, label, icon, end }) => (
             <NavLink
               key={to}
               to={to}
               end={end}
               className={({ isActive }) =>
-                `nav-link flex items-center gap-3 px-3 py-3 rounded-2xl text-sm transition-all ${
-                  isActive ? 'active shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+                `nav-link flex items-center gap-3 rounded-2xl border px-3 py-3.5 text-sm transition-all ${
+                  isActive
+                    ? 'border-white/12 bg-white/10 text-white shadow-[0_12px_28px_rgba(15,23,42,0.18)]'
+                    : 'border-transparent text-slate-300 hover:border-white/10 hover:bg-white/5 hover:text-white'
                 }`
               }
             >
               {({ isActive }) => (
                 <>
-                  <SidebarIcon item={icon} active={isActive} />
-                  <span className="font-medium">{label}</span>
+                  <span className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl border ${isActive ? 'border-white/10 bg-white/12' : 'border-white/10 bg-white/5'}`}>
+                    <SidebarIcon item={icon} active={isActive} />
+                  </span>
+                  <span className={`font-medium ${isActive ? 'text-white' : 'text-slate-200'}`}>{label}</span>
                 </>
               )}
             </NavLink>
           ))}
         </nav>
 
-        <div className="px-4 py-5 border-t border-slate-200 bg-white">
-          <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-700 font-bold text-sm">
+        <div className="border-t border-slate-800 bg-[linear-gradient(180deg,rgba(24,33,45,0.94),rgba(31,42,55,0.98))] px-4 py-5">
+          <div className="rounded-3xl border border-white/10 bg-white/8 px-4 py-4 shadow-[0_14px_30px_rgba(15,23,42,0.12)]">
+            <div className="mb-3 flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#1d4ed8,#60a5fa)] text-sm font-bold text-white shadow-inner">
                 {studentName[0] || 'S'}
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-slate-700 truncate">{studentName}</p>
-                <p className="text-xs text-slate-400 truncate">{user?.email}</p>
+                <p className="truncate text-sm font-semibold text-white">{studentName}</p>
+                <p className="truncate text-xs text-slate-300">{user?.email}</p>
               </div>
             </div>
-            <button onClick={handleLogout} className="w-full text-left text-sm font-medium text-red-500 hover:text-red-700 transition-colors px-1">
+            <button onClick={handleLogout} className="w-full px-1 text-left text-sm font-medium text-red-300 transition-colors hover:text-red-200">
               Sign out {'\u2192'}
             </button>
           </div>

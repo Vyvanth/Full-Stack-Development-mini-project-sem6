@@ -98,7 +98,44 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <AppRoutes />
-        <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+        <Toaster
+          position="top-right"
+          gutter={14}
+          containerStyle={{ top: 24, right: 24 }}
+          toastOptions={{
+            duration: 3200,
+            style: {
+              background: 'rgba(255,255,255,0.96)',
+              color: '#0f172a',
+              border: '1px solid #dbeafe',
+              borderRadius: '18px',
+              boxShadow: '0 18px 40px rgba(15, 23, 42, 0.14)',
+              padding: '14px 16px',
+              minWidth: '280px',
+              backdropFilter: 'blur(10px)',
+              fontSize: '14px',
+              fontWeight: 500,
+            },
+            success: {
+              iconTheme: {
+                primary: '#2563eb',
+                secondary: '#eff6ff',
+              },
+              style: {
+                border: '1px solid #bfdbfe',
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: '#ef4444',
+                secondary: '#fff1f2',
+              },
+              style: {
+                border: '1px solid #fecdd3',
+              },
+            },
+          }}
+        />
       </BrowserRouter>
     </AuthProvider>
   );

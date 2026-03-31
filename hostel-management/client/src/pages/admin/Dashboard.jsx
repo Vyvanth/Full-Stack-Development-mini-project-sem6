@@ -121,7 +121,7 @@ export default function AdminDashboard() {
                   <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
                   <Tooltip cursor={{ fill: 'rgba(148,163,184,0.08)' }} />
-                  <Bar dataKey="count" fill="#0f766e" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="count" fill="#2563eb" radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
               <div className="grid grid-cols-3 gap-3 border-t border-slate-100 pt-4">

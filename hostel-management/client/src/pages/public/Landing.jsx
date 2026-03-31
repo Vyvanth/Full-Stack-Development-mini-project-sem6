@@ -51,12 +51,11 @@ export default function Landing() {
         </nav>
 
         <div className="relative mx-auto max-w-4xl px-6 pb-40 pt-14 text-center lg:px-8 lg:pb-48 lg:pt-20">
-          <span className="inline-flex rounded-full border border-white/12 bg-white/6 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.28em] text-slate-200">
+          <h1
+            className="text-6xl font-bold italic tracking-[0.06em] text-white md:text-7xl"
+            style={{ fontFamily: '"Georgia", "Times New Roman", serif' }}
+          >
             Campus Nest
-          </span>
-
-          <h1 className="mt-7 text-5xl font-bold tracking-tight text-white md:text-6xl">
-            Hostel Management, Made Clear
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-300">
