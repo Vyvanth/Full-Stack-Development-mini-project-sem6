@@ -52,8 +52,7 @@ export default function Landing() {
 
         <div className="relative mx-auto max-w-4xl px-6 pb-40 pt-14 text-center lg:px-8 lg:pb-48 lg:pt-20">
           <h1
-            className="text-6xl font-bold italic tracking-[0.06em] text-white md:text-7xl"
-            style={{ fontFamily: '"Georgia", "Times New Roman", serif' }}
+            className="text-6xl font-semibold tracking-[-0.03em] text-white drop-shadow-[0_10px_24px_rgba(15,23,42,0.28)] md:text-7xl"
           >
             Campus Nest
           </h1>
