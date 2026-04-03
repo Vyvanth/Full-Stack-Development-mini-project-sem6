@@ -34,7 +34,7 @@ export default function Landing() {
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(24,33,45,0.94)_0%,rgba(24,33,45,0.82)_34%,rgba(24,33,45,0.48)_62%,rgba(24,33,45,0.68)_100%)]" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.14),transparent_28%),radial-gradient(circle_at_top_right,rgba(148,163,184,0.12),transparent_24%)]" />
 
-        <nav className="relative mx-auto flex max-w-5xl items-center justify-between px-6 py-6 lg:px-8">
+        <nav className="relative mx-auto flex max-w-7xl items-center justify-between px-6 py-6 lg:px-10">
           <div className="flex items-center gap-3">
             <BrandMark compact dark />
             <div>
@@ -107,7 +107,7 @@ export default function Landing() {
       </section>
 
       <footer className="bg-[#18212d] text-white">
-        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 px-6 py-8 text-center md:flex-row md:text-left lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-8 text-center md:flex-row md:text-left lg:px-10">
           <div className="flex items-center gap-3">
             <BrandMark compact dark />
             <span className="text-sm font-bold tracking-tight text-white/85">Campus Nest</span>
