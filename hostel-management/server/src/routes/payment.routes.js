@@ -34,6 +34,34 @@ function formatDate(date) {
   }).format(new Date(date));
 }
 
+async function sendPaymentStatusEmail({
+  payment,
+  subject,
+  heading,
+  intro,
+  amountLabel,
+  extraRows = '',
+}) {
+  if (!payment?.student?.user?.email) return;
+
+  await sendEmail({
+    to: payment.student.user.email,
+    subject,
+    text: `Hello ${payment.student.fullName}, ${intro} Fee: ${payment.fee.title}. ${amountLabel}: ${formatCurrency(payment.amount)}.`,
+    html: `
+      <div style="font-family: Arial, sans-serif; color: #0f172a;">
+        <h2>${heading}</h2>
+        <p>Hello ${payment.student.fullName},</p>
+        <p>${intro}</p>
+        <p><strong>Fee:</strong> ${payment.fee.title}<br/>
+        <strong>${amountLabel}:</strong> ${formatCurrency(payment.amount)}<br/>
+        ${extraRows}</p>
+        <p>Please try again or contact the hostel office if you need help.</p>
+      </div>
+    `,
+  });
+}
+
 function normalizeFeePayload({ title, amount, dueDate, academicYear }) {
   const trimmedTitle = title?.trim();
   const trimmedAcademicYear = academicYear?.trim();
@@ -324,25 +352,17 @@ router.post('/verify', async (req, res, next) => {
     });
 
     try {
-      if (payment.student?.user?.email) {
-        await sendEmail({
-          to: payment.student.user.email,
-          subject: `Payment Successful: ${payment.fee.title}`,
-          text: `Hello ${payment.student.fullName}, your payment of ${formatCurrency(payment.amount)} for "${payment.fee.title}" was received successfully on ${formatDate(payment.paidAt)}.`,
-          html: `
-            <div style="font-family: Arial, sans-serif; color: #0f172a;">
-              <h2>Payment Successful</h2>
-              <p>Hello ${payment.student.fullName},</p>
-              <p>Your payment was received successfully.</p>
-              <p><strong>Fee:</strong> ${payment.fee.title}<br/>
-              <strong>Amount Paid:</strong> ${formatCurrency(payment.amount)}<br/>
-              <strong>Paid On:</strong> ${formatDate(payment.paidAt)}<br/>
-              <strong>Payment ID:</strong> ${razorpay_payment_id}</p>
-              <p>Thank you.</p>
-            </div>
-          `,
-        });
-      }
+      await sendPaymentStatusEmail({
+        payment,
+        subject: `Payment Successful: ${payment.fee.title}`,
+        heading: 'Payment Successful',
+        intro: 'Your payment was received successfully.',
+        amountLabel: 'Amount Paid',
+        extraRows: `
+          <strong>Paid On:</strong> ${formatDate(payment.paidAt)}<br/>
+          <strong>Payment ID:</strong> ${razorpay_payment_id}
+        `,
+      });
     } catch (mailErr) {
       console.warn('Payment success email failed:', mailErr.message);
     }
@@ -354,6 +374,55 @@ router.post('/verify', async (req, res, next) => {
         error: err.error?.description || err.message || 'Failed to verify Razorpay payment.',
       });
     }
+    next(err);
+  }
+});
+
+router.post('/notify-failure', async (req, res, next) => {
+  try {
+    const { paymentId, reason, code, source } = req.body;
+    if (!paymentId) {
+      return res.status(400).json({ error: 'Payment ID is required.' });
+    }
+
+    const payment = await prisma.payment.findUnique({
+      where: { id: paymentId },
+      include: {
+        fee: true,
+        student: {
+          include: {
+            user: { select: { email: true } },
+          },
+        },
+      },
+    });
+
+    if (!payment) return res.status(404).json({ error: 'Payment record not found.' });
+    if (req.user.role === 'STUDENT' && payment.studentId !== req.user.student?.id) {
+      return res.status(403).json({ error: 'You can only notify failures for your own payments.' });
+    }
+
+    try {
+      await sendPaymentStatusEmail({
+        payment,
+        subject: `Payment Failed: ${payment.fee.title}`,
+        heading: 'Payment Failed',
+        intro: 'Your recent payment attempt could not be completed.',
+        amountLabel: 'Amount',
+        extraRows: `
+          <strong>Attempted On:</strong> ${formatDate(new Date())}<br/>
+          ${reason ? `<strong>Reason:</strong> ${reason}<br/>` : ''}
+          ${code ? `<strong>Error Code:</strong> ${code}<br/>` : ''}
+          ${source ? `<strong>Source:</strong> ${source}` : ''}
+        `,
+      });
+    } catch (mailErr) {
+      console.warn('Payment failure email failed:', mailErr.message);
+      return res.status(500).json({ error: 'Failed to send payment failure email.' });
+    }
+
+    res.json({ message: 'Payment failure email sent.' });
+  } catch (err) {
     next(err);
   }
 });

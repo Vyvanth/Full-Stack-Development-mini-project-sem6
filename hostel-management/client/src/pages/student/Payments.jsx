@@ -78,7 +78,16 @@ export default function Payments() {
         },
         theme: { color: '#2563eb' },
         modal: {
-          ondismiss: () => {
+          ondismiss: async () => {
+            try {
+              await api.post('/payments/notify-failure', {
+                paymentId: payment.id,
+                reason: 'Checkout closed before payment completion.',
+                source: 'checkout_dismissed',
+              });
+            } catch {
+              // Keep the UI responsive even if email notification fails.
+            }
             toast('Payment cancelled.');
             setPayingId(null);
           },
@@ -86,7 +95,17 @@ export default function Payments() {
       };
 
       const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', (response) => {
+      rzp.on('payment.failed', async (response) => {
+        try {
+          await api.post('/payments/notify-failure', {
+            paymentId: payment.id,
+            reason: response?.error?.description || 'Payment attempt failed.',
+            code: response?.error?.code || '',
+            source: response?.error?.source || 'razorpay',
+          });
+        } catch {
+          // Email is helpful but should not block the failure toast.
+        }
         toast.error(`Payment failed: ${response.error.description}`);
         setPayingId(null);
       });
